@@ -3,74 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Crypto Dashboard</title>
-
 <style>
-body{
-  background:#0b0e11;
-  color:#fff;
-  font-family:Arial;
-  text-align:center;
-  margin:0;
-}
-
-h2{
-  font-size:22px;
-  margin:20px 0;
-}
-
-/* ===== HÀNG NGANG ===== */
-.row{
-  display:flex;
-  gap:15px;
-  overflow-x:auto;
-  padding:15px;
-}
-
-/* scrollbar */
-.row::-webkit-scrollbar{
-  height:6px;
-}
-.row::-webkit-scrollbar-thumb{
-  background:#00ffcc;
-  border-radius:10px;
-}
-
-/* ===== CARD ===== */
-.card{
-  min-width:170px;
-  flex:0 0 auto;
-  border:1px solid #00ffcc;
-  border-radius:14px;
-  padding:20px;
-}
-
-/* tên coin */
-.label{
-  font-size:16px;
-}
-
-/* giá USD */
-.price{
-  font-size:26px;
-  font-weight:bold;
-  margin-top:10px;
-}
-
-/* giá VND */
-.vnd{
-  color:#aaa;
-  font-size:16px;
-}
+  body{background:#0b0e11; color:#fff; font-family:Arial; text-align:center; margin:0;}
+  h2{font-size:22px; margin:20px 0; color:#00ffcc;}
+  .row{display:flex; gap:15px; overflow-x:auto; padding:15px; justify-content:center; flex-wrap:wrap;}
+  .card{min-width:170px; flex:0 0 auto; border:1px solid #00ffcc; border-radius:14px; padding:20px; background:#161a1e;}
+  .label{font-size:16px; color:#848e9c;}
+  .price{font-size:26px; font-weight:bold; margin-top:10px;}
+  .vnd{color:#aaa; font-size:16px;}
 </style>
 </head>
-
 <body>
 
 <h2>🚀 LIVE CRYPTO DASHBOARD</h2>
 
 <div class="row">
+  <div class="card">
+    <div class="label">📊 TOTAL STAKED</div>
+    <div id="staked" class="price">...</div>
+    <div class="vnd">LP TOKENS</div>
+  </div>
 
   <div class="card">
     <div class="label">🚀 TURBO</div>
@@ -82,12 +35,6 @@ h2{
     <div class="label">💎 PNIC</div>
     <div id="pnic" class="price">...</div>
     <div id="pnic_vnd" class="vnd"></div>
-  </div>
-
-  <div class="card">
-    <div class="label">🧪 LP</div>
-    <div id="lp" class="price">...</div>
-    <div id="lp_vnd" class="vnd"></div>
   </div>
 
   <div class="card">
@@ -107,100 +54,54 @@ h2{
     <div id="avax" class="price">...</div>
     <div id="avax_vnd" class="vnd"></div>
   </div>
-
 </div>
 
 <script>
+let RATE = 25400;
 
-// ===== KEY =====
-const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
-
-// ===== RATE =====
-let RATE = 25000;
-let old = {};
-
-// ===== LOAD TỶ GIÁ =====
-async function loadRate(){
+async function loadData(){
   try{
-    const res = await fetch("https://open.er-api.com/v6/latest/USD");
-    const data = await res.json();
-    RATE = data.rates.VND;
-  }catch(e){}
+    // 1. Lấy tỷ giá VND mới nhất
+    const resRate = await fetch("https://open.er-api.com/v6/latest/USD");
+    const dataRate = await resRate.json();
+    RATE = dataRate.rates.VND;
+
+    // 2. Lấy dữ liệu từ API sàn Miracle (Giống price2)
+    // Lấy Total Staked và giá Turbo
+    const resTurbo = await fetch("https://api.miracledex.net/api/v1/turbo/stats");
+    const dataTurbo = await resTurbo.json();
+    
+    // Hiển thị Total Staked (Số nguyên, định dạng 12.345.678)
+    document.getElementById("staked").innerText = Math.floor(dataTurbo.staked).toLocaleString("vi-VN");
+    updateUI("turbo", dataTurbo.price);
+
+    // Lấy giá PNIC
+    const resPnic = await fetch("https://api.miracledex.net/api/v1/tokens/prices");
+    const dataPnic = await resPnic.json();
+    updateUI("pnic", dataPnic.PNIC);
+
+    // 3. Lấy giá BTC, ETH, AVAX từ Coingecko
+    const resM = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,avalanche-2&vs_currencies=usd");
+    const dataM = await resM.json();
+    updateUI("btc", dataM.bitcoin.usd);
+    updateUI("eth", dataM.ethereum.usd);
+    updateUI("avax", dataM["avalanche-2"].usd);
+
+  }catch(e){ console.log("Lỗi tải dữ liệu: ", e); }
 }
 
-// ===== LOAD TOKEN =====
-async function loadTokens(){
-  try{
-    const res = await fetch(
-      "https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=turbo_price_usd,pnic_price_usd,lp_price_usd&order=timestamp.desc&limit=1",
-      {
-        headers:{
-          "apikey": API_KEY,
-          "Authorization": "Bearer " + API_KEY
-        }
-      }
-    );
-
-    const data = await res.json();
-    if(!data.length) return;
-
-    update("turbo", data[0].turbo_price_usd);
-    update("pnic", data[0].pnic_price_usd);
-    update("lp", data[0].lp_price_usd);
-
-  }catch(e){
-    console.log("Token lỗi");
-  }
-}
-
-// ===== LOAD BTC ETH AVAX =====
-async function loadMarket(){
-  try{
-    const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,avalanche-2&vs_currencies=usd"
-    );
-    const data = await res.json();
-
-    update("btc", data.bitcoin.usd);
-    update("eth", data.ethereum.usd);
-    update("avax", data["avalanche-2"].usd);
-
-  }catch(e){
-    console.log("Market lỗi");
-  }
-}
-
-// ===== UPDATE UI =====
-function update(id, value){
+function updateUI(id, val){
   const el = document.getElementById(id);
   const elVnd = document.getElementById(id+"_vnd");
-
-  const v = Number(value);
-  if(!v) return;
-
-  const vnd = v * RATE;
-
-  el.innerText = "$" + v.toFixed(6);
-  elVnd.innerText = vnd.toLocaleString("vi-VN") + " đ";
-
-  if(old[id]){
-    if(v > old[id]) el.style.color = "#0ecb81";
-    else if(v < old[id]) el.style.color = "#f6465d";
-  }
-
-  old[id] = v;
+  if(!el || !val) return;
+  
+  const v = Number(val);
+  el.innerText = "$" + (v < 1 ? v.toFixed(6) : v.toLocaleString());
+  if(elVnd) elVnd.innerText = Math.round(v * RATE).toLocaleString("vi-VN") + " đ";
 }
 
-// ===== RUN =====
-loadRate();
-setInterval(loadRate,60000);
-
-setInterval(loadTokens,2000);
-setInterval(loadMarket,3000);
-
-loadTokens();
-loadMarket();
-
+loadData();
+setInterval(loadData, 10000); // Cập nhật mỗi 10 giây
 </script>
 
 </body>
