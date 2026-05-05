@@ -6,7 +6,6 @@
 <title>LIVE CRYPTO DASHBOARD</title>
 
 <style>
-
 *{
   margin:0;
   padding:0;
@@ -14,151 +13,173 @@
 }
 
 body{
-  background:#05070d;
+  background:#050816;
+  color:white;
   font-family:Arial,sans-serif;
-  color:#fff;
-  padding:10px;
   overflow-y:auto;
+}
+
+.container{
+  max-width:520px;
+  margin:auto;
+  padding:10px;
 }
 
 h1{
   text-align:center;
-  font-size:26px;
-  margin-bottom:12px;
-  font-weight:900;
-}
-
-.container{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+  font-size:28px;
+  margin:14px 0 18px;
+  font-weight:700;
 }
 
 .card{
-  background:#0f1525;
-  border:1px solid #00ffd0;
+  background:#10162b;
+  border:1px solid #00ffe1;
   border-radius:18px;
-
-  min-height:150px;
+  padding:16px;
+  margin-bottom:12px;
+  min-height:110px;
 
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
+}
 
-  text-align:center;
+.top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
 
-  box-shadow:0 0 15px rgba(0,255,208,0.08);
+.logo{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#fff;
 }
 
 .label{
-  font-size:22px;
-  margin-bottom:10px;
+  font-size:20px;
   font-weight:bold;
 }
 
 .price{
-  font-size:58px;
-  font-weight:900;
-  line-height:1;
+  font-size:34px;
+  font-weight:bold;
+  margin-bottom:8px;
 }
 
 .vnd{
-  margin-top:10px;
-  color:#aaa;
-  font-size:22px;
+  font-size:20px;
+  color:#cfcfcf;
 }
 
 .green{
-  color:#00ff9d;
+  color:#0ecb81;
 }
 
 .red{
-  color:#ff4d6d;
+  color:#f6465d;
 }
 
-/* mobile */
-
-@media(max-width:768px){
-
-  body{
-    padding:8px;
-  }
+@media(max-width:480px){
 
   h1{
-    font-size:20px;
-    margin-bottom:8px;
-  }
-
-  .container{
-    gap:8px;
+    font-size:24px;
   }
 
   .card{
-    min-height:120px;
-    padding:10px;
-  }
-
-  .label{
-    font-size:18px;
-    margin-bottom:8px;
+    min-height:95px;
+    padding:14px;
   }
 
   .price{
-    font-size:42px;
+    font-size:30px;
   }
 
   .vnd{
     font-size:18px;
-    margin-top:8px;
   }
 
+  .label{
+    font-size:18px;
+  }
 }
-
 </style>
 </head>
 
 <body>
 
-<h1>🚀 LIVE CRYPTO DASHBOARD</h1>
-
 <div class="container">
 
-  <div class="card">
-    <div class="label">🚀 TURBO</div>
-    <div id="turbo" class="price">...</div>
-    <div id="turbo_vnd" class="vnd"></div>
+<h1>🚀 LIVE CRYPTO DASHBOARD</h1>
+
+<!-- TURBO -->
+<div class="card">
+  <div class="top">
+    <img class="logo"
+    src="https://turbo.miracledex.net/turbo-logo.png">
+    <div class="label">TURBO</div>
   </div>
 
-  <div class="card">
-    <div class="label">💎 PNIC</div>
-    <div id="pnic" class="price">...</div>
-    <div id="pnic_vnd" class="vnd"></div>
+  <div id="turbo" class="price">...</div>
+  <div id="turbo_vnd" class="vnd"></div>
+</div>
+
+<!-- PNIC -->
+<div class="card">
+  <div class="top">
+    <img class="logo"
+    src="https://coin-images.coingecko.com/coins/images/37667/small/IMG_20240506_181047_087.jpg?1715181260">
+    <div class="label">PNIC</div>
   </div>
 
-  <div class="card">
-    <div class="label">🟠 BTC</div>
-    <div id="btc" class="price">...</div>
-    <div id="btc_vnd" class="vnd"></div>
+  <div id="pnic" class="price">...</div>
+  <div id="pnic_vnd" class="vnd"></div>
+</div>
+
+<!-- BTC -->
+<div class="card">
+  <div class="top">
+    <img class="logo"
+    src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=040">
+    <div class="label">BTC</div>
   </div>
 
-  <div class="card">
-    <div class="label">Ξ ETH</div>
-    <div id="eth" class="price">...</div>
-    <div id="eth_vnd" class="vnd"></div>
+  <div id="btc" class="price">...</div>
+  <div id="btc_vnd" class="vnd"></div>
+</div>
+
+<!-- ETH -->
+<div class="card">
+  <div class="top">
+    <img class="logo"
+    src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040">
+    <div class="label">ETH</div>
   </div>
 
-  <div class="card">
-    <div class="label">🟢 AVAX</div>
-    <div id="avax" class="price">...</div>
-    <div id="avax_vnd" class="vnd"></div>
+  <div id="eth" class="price">...</div>
+  <div id="eth_vnd" class="vnd"></div>
+</div>
+
+<!-- AVAX -->
+<div class="card">
+  <div class="top">
+    <img class="logo"
+    src="https://cryptologos.cc/logos/avalanche-avax-logo.png?v=040">
+    <div class="label">AVAX</div>
   </div>
+
+  <div id="avax" class="price">...</div>
+  <div id="avax_vnd" class="vnd"></div>
+</div>
 
 </div>
 
 <script>
-
-const API_KEY = 'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv';
 
 let RATE = 26000;
 let oldPrice = {};
@@ -167,54 +188,20 @@ async function loadRate(){
 
   try{
 
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const res = await fetch(
+      'https://open.er-api.com/v6/latest/USD'
+    );
+
     const data = await res.json();
 
     RATE = data.rates.VND;
 
   }catch(e){
-    console.log('rate error');
+    console.log(e);
   }
 }
 
-function updatePrice(id, value){
-
-  const el = document.getElementById(id);
-  const elVnd = document.getElementById(id + '_vnd');
-
-  if(!el || !elVnd) return;
-
-  const v = Number(value);
-
-  if(isNaN(v)) return;
-
-  el.innerHTML = '$' + v.toLocaleString('en-US',{
-    minimumFractionDigits: 6,
-    maximumFractionDigits: 6
-  });
-
-  elVnd.innerHTML =
-    (v * RATE).toLocaleString('vi-VN') + ' đ';
-
-  if(oldPrice[id]){
-
-    el.classList.remove('green');
-    el.classList.remove('red');
-
-    if(v > oldPrice[id]){
-      el.classList.add('green');
-    }
-
-    if(v < oldPrice[id]){
-      el.classList.add('red');
-    }
-
-  }
-
-  oldPrice[id] = v;
-}
-
-async function loadTurbo(){
+async function loadPNIC(){
 
   try{
 
@@ -222,75 +209,98 @@ async function loadTurbo(){
       'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1',
       {
         headers:{
-          apikey: API_KEY,
-          Authorization: 'Bearer ' + API_KEY
+          apikey:'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv'
         }
       }
     );
 
     const data = await res.json();
 
-    if(!data || !data.length) return;
+    if(data && data.length){
 
-    const item = data[0];
+      updatePrice(
+        'pnic',
+        data[0].pnic_price_usd
+      );
 
-    updatePrice('turbo', item.turbo_price_usd);
-    updatePrice('pnic', item.pnic_price_usd);
+      updatePrice(
+        'turbo',
+        data[0].turbo_price_usd
+      );
+    }
 
   }catch(e){
-
-    console.log('turbo error');
-
+    console.log(e);
   }
-
 }
 
 async function loadMarket(){
 
   try{
 
-    const symbols = [
-      'BTCUSDT',
-      'ETHUSDT',
-      'AVAXUSDT'
-    ];
-
-    const results = await Promise.all(
-
-      symbols.map(s =>
-        fetch(
-          'https://api.binance.com/api/v3/ticker/price?symbol=' + s
-        ).then(r => r.json())
-      )
-
+    const res = await fetch(
+      'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD'
     );
 
-    updatePrice('btc', results[0].price);
-    updatePrice('eth', results[1].price);
-    updatePrice('avax', results[2].price);
+    const data = await res.json();
+
+    updatePrice('btc', data.BTC.USD);
+    updatePrice('eth', data.ETH.USD);
+    updatePrice('avax', data.AVAX.USD);
 
   }catch(e){
+    console.log(e);
+  }
+}
 
-    console.log('market error');
+function updatePrice(id,value){
 
+  const el = document.getElementById(id);
+  const vnd = document.getElementById(id+'_vnd');
+
+  if(!el || !vnd) return;
+
+  value = Number(value);
+
+  if(isNaN(value)) return;
+
+  el.innerText =
+    '$' + value.toLocaleString(
+      'en-US',
+      {
+        minimumFractionDigits:6,
+        maximumFractionDigits:6
+      }
+    );
+
+  vnd.innerText =
+    (value * RATE).toLocaleString('vi-VN')
+    + ' đ';
+
+  if(oldPrice[id]){
+
+    el.classList.remove('green');
+    el.classList.remove('red');
+
+    if(value > oldPrice[id]){
+      el.classList.add('green');
+    }
+
+    if(value < oldPrice[id]){
+      el.classList.add('red');
+    }
   }
 
+  oldPrice[id] = value;
 }
 
-async function start(){
+loadRate();
+loadPNIC();
+loadMarket();
 
-  await loadRate();
-
-  loadTurbo();
-  loadMarket();
-
-  setInterval(loadTurbo,3000);
-  setInterval(loadMarket,3000);
-  setInterval(loadRate,60000);
-
-}
-
-start();
+setInterval(loadRate,60000);
+setInterval(loadPNIC,4000);
+setInterval(loadMarket,5000);
 
 </script>
 
