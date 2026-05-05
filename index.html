@@ -39,23 +39,19 @@
 
         async function updateData() {
             try {
-                // Ép trình duyệt lấy data mới nhất bằng t=Date.now()
                 const res = await fetch(`${BASE_URL}?select=*&order=timestamp.desc&limit=1&t=${Date.now()}`, {
                     headers: { "apikey": API_KEY, "Authorization": "Bearer " + API_KEY }
                 });
                 const data = await res.json();
-                
                 if (data && data[0]) {
                     const item = data[0];
-                    // Hiển thị giá từ Database
                     render("mirx", item.mirx_price_usd, 4);
                     render("turbo", item.turbo_price_usd, 4);
                     render("pnic", item.pnic_price_usd, 4);
                     render("lp", item.total_staked, 0, true);
                 }
-            } catch (e) { console.log("Lỗi kết nối Supabase"); }
+            } catch (e) { console.log("Lỗi Supabase"); }
 
-            // Giá quốc tế (BTC, ETH, AVAX)
             try {
                 const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
                 const m = await resM.json();
@@ -75,9 +71,8 @@
                 elVnd.innerText = isStaked ? "TURBO STAKED" : Math.round(price * RATE_VND).toLocaleString("vi-VN") + " VND";
             }
         }
-
         updateData();
-        setInterval(updateData, 5000); // 5 giây cập nhật 1 lần
+        setInterval(updateData, 5000);
     </script>
 </body>
 </html>
