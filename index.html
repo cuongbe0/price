@@ -1,68 +1,86 @@
-<script>
-    const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
-    const RATE_VND = 27050; 
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Crypto Dashboard Live</title>
+    <style>
+        body{background:#0b0e11; color:#fff; font-family:Arial, sans-serif; text-align:center; margin:0; padding-bottom:50px;}
+        h2{color:#00ffcc; padding:20px 0;}
+        .section-title{font-size:12px; color:#666; text-align:left; margin:15px 0 0 20px; text-transform:uppercase; letter-spacing:2px;}
+        .row{display:flex; gap:12px; padding:15px; overflow-x:auto;}
+        .card{min-width:160px; flex:1; border:1px solid #2b3139; border-radius:12px; padding:18px; background:#161a1e;}
+        .label{font-size:13px; color:#848e9c; margin-bottom:8px;}
+        .price{font-size:22px; font-weight:bold; color:#eaecef;}
+        .vnd{color:#00ffcc; font-size:13px; margin-top:4px; font-weight:bold;}
+    </style>
+</head>
+<body>
+    <h2>🚀 LIVE CRYPTO DASHBOARD</h2>
 
-    async function updateData() {
-        try {
-            const url = `https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1`;
-            const res = await fetch(url, {
-                headers: { 
-                    "apikey": API_KEY, 
-                    "Authorization": "Bearer " + API_KEY,
-                    "Content-Type": "application/json"
+    <div class="section-title">Hệ Sinh Thái</div>
+    <div class="row">
+        <div class="card"><div class="label">🌐 MIRX</div><div id="mirx" class="price">--</div><div id="mirx_vnd" class="vnd"></div></div>
+        <div class="card"><div class="label">🚀 TURBO</div><div id="turbo" class="price">--</div><div id="turbo_vnd" class="vnd"></div></div>
+        <div class="card"><div class="label">💎 PNIC</div><div id="pnic" class="price">--</div><div id="pnic_vnd" class="vnd"></div></div>
+        <div class="card"><div class="label">📊 TOTAL STAKED</div><div id="lp" class="price">--</div><div id="lp_vnd" class="vnd"></div></div>
+    </div>
+
+    <div class="section-title">Thị Trường</div>
+    <div class="row">
+        <div class="card"><div class="label">🟠 BTC</div><div id="btc" class="price">--</div><div id="btc_vnd" class="vnd"></div></div>
+        <div class="card"><div class="label">Ξ ETH</div><div id="eth" class="price">--</div><div id="eth_vnd" class="vnd"></div></div>
+        <div class="card"><div class="label">🟢 AVAX</div><div id="avax" class="price">--</div><div id="avax_vnd" class="vnd"></div></div>
+    </div>
+
+    <script>
+        // Cập nhật đúng URL từ Project Supabase mới của ông
+        const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
+        const BASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
+        const RATE_VND = 27050; 
+
+        async function updateData() {
+            try {
+                const res = await fetch(`${BASE_URL}?select=*&order=timestamp.desc&limit=1&t=${Date.now()}`, {
+                    headers: { "apikey": API_KEY, "Authorization": "Bearer " + API_KEY }
+                });
+                const data = await res.json();
+                
+                if (data && data[0]) {
+                    const item = data[0];
+                    // Tự tìm cột: mirx_price_usd, turbo_price_usd...
+                    const getVal = (k) => {
+                        for(let key in item) if(key.toLowerCase().includes(k)) return item[key];
+                        return null;
+                    };
+
+                    render("mirx", getVal("mirx"), 6);
+                    render("turbo", getVal("turbo"), 6);
+                    render("pnic", getVal("pnic"), 6);
+                    render("lp", getVal("staked") || getVal("total"), 2, true);
                 }
-            });
-            const data = await res.json();
-            
-            if (data && data[0]) {
-                const item = data[0];
-                console.log("Dữ liệu gốc từ DB:", item);
+            } catch (e) { console.error("Lỗi lấy dữ liệu hệ sinh thái"); }
 
-                // Hàm tự động tìm cột theo từ khóa (Không lo sai tên cột)
-                const find = (word) => {
-                    const key = Object.keys(item).find(k => k.toLowerCase().includes(word.toLowerCase()));
-                    return key ? item[key] : null;
-                };
-
-                // Lấy giá thực tế
-                const m = find("mirx");
-                const t = find("turbo");
-                const p = find("pnic");
-                const s = find("staked") || find("lp") || find("total");
-
-                if(m) renderPrice("mirx", m, 6);
-                if(t) renderPrice("turbo", t, 6);
-                if(p) renderPrice("pnic", p, 6);
-                if(s) renderStaked("lp", s);
-            }
-        } catch (e) {
-            console.error("Lỗi kết nối Supabase:", e);
+            // Giá quốc tế
+            try {
+                const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
+                const m = await resM.json();
+                if(m.BTC) render("btc", m.BTC.USD, 2);
+                if(m.ETH) render("eth", m.ETH.USD, 2);
+                if(m.AVAX) render("avax", m.AVAX.USD, 4);
+            } catch (e) {}
         }
 
-        // Giá Market Quốc Tế (BTC, ETH, AVAX)
-        try {
-            const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
-            const mData = await resM.json();
-            if(mData.BTC) renderPrice("btc", mData.BTC.USD, 2);
-            if(mData.ETH) renderPrice("eth", mData.ETH.USD, 2);
-            if(mData.AVAX) renderPrice("avax", mData.AVAX.USD, 6);
-        } catch (e) {}
-    }
+        function render(id, val, dec, isStaked = false) {
+            if (val === null || val === undefined) return;
+            const price = parseFloat(val);
+            const el = document.getElementById(id);
+            const elVnd = document.getElementById(id + "_vnd");
+            el.innerText = (isStaked ? "" : "$") + price.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec});
+            elVnd.innerText = isStaked ? "LP TOKENS" : Math.round(price * RATE_VND).toLocaleString("vi-VN") + " VND";
+        }
 
-    function renderPrice(id, val, dec) {
-        if (!val) return;
-        const price = parseFloat(val);
-        document.getElementById(id).innerText = "$" + price.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec});
-        document.getElementById(id + "_vnd").innerText = Math.round(price * RATE_VND).toLocaleString("vi-VN") + " VND";
-    }
-
-    function renderStaked(id, val) {
-        if (!val) return;
-        const num = parseFloat(val);
-        document.getElementById(id).innerText = num.toLocaleString('en-US', {minimumFractionDigits: 2});
-        document.getElementById(id + "_vnd").innerText = "LP TOKENS";
-    }
-
-    updateData();
-    setInterval(updateData, 5000);
-</script>
+        updateData();
+        setInterval(updateData, 5000);
+    </script>
+</body>
+</html>
