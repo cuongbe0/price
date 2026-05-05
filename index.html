@@ -13,16 +13,16 @@
 
 body{
   margin:0;
+  padding:10px;
   background:#0b0e11;
   color:#fff;
   font-family:Arial,sans-serif;
-  padding:10px;
 }
 
 h1{
   text-align:center;
   font-size:28px;
-  margin:20px 0;
+  margin:20px 0 25px;
 }
 
 .container{
@@ -35,37 +35,32 @@ h1{
   background:#131722;
   border:1px solid #00ffd0;
   border-radius:18px;
+  min-height:160px;
   padding:20px;
-  min-height:140px;
 
   display:flex;
   flex-direction:column;
-  justify-content:center;
-}
-
-.label{
-  font-size:20px;
-  margin-bottom:15px;
-  opacity:.95;
-}
-
-.price{
-  font-size:58px;
-  font-weight:700;
-  line-height:1;
-  margin-bottom:12px;
-
-  display:flex;
   justify-content:center;
   align-items:center;
 
   text-align:center;
 }
 
+.label{
+  font-size:22px;
+  margin-bottom:18px;
+}
+
+.price{
+  font-size:62px;
+  font-weight:700;
+  line-height:1;
+  margin-bottom:14px;
+}
+
 .vnd{
-  text-align:center;
-  color:#bdbdbd;
   font-size:24px;
+  color:#bdbdbd;
 }
 
 .green{
@@ -79,16 +74,17 @@ h1{
 @media(max-width:768px){
 
   h1{
-    font-size:20px;
+    font-size:22px;
   }
 
   .card{
-    min-height:120px;
+    min-height:140px;
     padding:18px;
   }
 
   .label{
     font-size:18px;
+    margin-bottom:14px;
   }
 
   .price{
@@ -191,7 +187,7 @@ async function loadTokens(){
 
   }catch(e){
 
-    console.log('token error', e);
+    console.log('token error');
 
   }
 
@@ -201,9 +197,7 @@ async function loadMarket(){
 
   try{
 
-    const res = await fetch(
-      'https://api.coincap.io/v2/assets'
-    );
+    const res = await fetch('https://api.coincap.io/v2/assets');
 
     const json = await res.json();
 
