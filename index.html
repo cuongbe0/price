@@ -57,37 +57,39 @@
 </div>
 
 <script>
+const K = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
+const U = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
 let RATE = 25400;
 
 async function loadData(){
   try{
-    // 1. Lấy tỷ giá VND mới nhất
+    // 1. Lấy tỷ giá VND
     const resRate = await fetch("https://open.er-api.com/v6/latest/USD");
     const dataRate = await resRate.json();
     RATE = dataRate.rates.VND;
 
-    // 2. Lấy dữ liệu từ API sàn Miracle (Giống price2)
-    // Lấy Total Staked và giá Turbo
-    const resTurbo = await fetch("https://api.miracledex.net/api/v1/turbo/stats");
-    const dataTurbo = await resTurbo.json();
+    // 2. Lấy dữ liệu từ Supabase (Sửa lỗi khớp cột turbo, pnic, staked)
+    const resSup = await fetch(`${U}?select=turbo,pnic,staked&order=timestamp.desc&limit=1`, {
+      headers: { "apikey": K, "Authorization": "Bearer " + K }
+    });
+    const dataSup = await resSup.json();
     
-    // Hiển thị Total Staked (Số nguyên, định dạng 12.345.678)
-    document.getElementById("staked").innerText = Math.floor(dataTurbo.staked).toLocaleString("vi-VN");
-    updateUI("turbo", dataTurbo.price);
+    if(dataSup && dataSup[0]){
+      const d = dataSup[0];
+      // Hiện Total Staked khớp với https://turbo.miracledex.net/
+      document.getElementById("staked").innerText = Math.floor(d.staked).toLocaleString("vi-VN");
+      updateUI("turbo", d.turbo);
+      updateUI("pnic", d.pnic);
+    }
 
-    // Lấy giá PNIC
-    const resPnic = await fetch("https://api.miracledex.net/api/v1/tokens/prices");
-    const dataPnic = await resPnic.json();
-    updateUI("pnic", dataPnic.PNIC);
-
-    // 3. Lấy giá BTC, ETH, AVAX từ Coingecko
+    // 3. Lấy giá BTC, ETH, AVAX (Giống hệt price2)
     const resM = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,avalanche-2&vs_currencies=usd");
     const dataM = await resM.json();
     updateUI("btc", dataM.bitcoin.usd);
     updateUI("eth", dataM.ethereum.usd);
     updateUI("avax", dataM["avalanche-2"].usd);
 
-  }catch(e){ console.log("Lỗi tải dữ liệu: ", e); }
+  }catch(e){ console.log("Lỗi: ", e); }
 }
 
 function updateUI(id, val){
@@ -101,7 +103,7 @@ function updateUI(id, val){
 }
 
 loadData();
-setInterval(loadData, 10000); // Cập nhật mỗi 10 giây
+setInterval(loadData, 5000);
 </script>
 
 </body>
