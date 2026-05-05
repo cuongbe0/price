@@ -35,27 +35,23 @@
     <script>
         const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZGVoeGh3andnY3NlaHJxdm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzY4MzgsImV4cCI6MjA5MzU1MjgzOH0.Rxx0IZYRRUUMPurhJqO6FdCS8O6t9NWrh_NfcU6onTY";
         const BASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
-        const RATE_VND = 27050; 
+        const RATE_VND = 27050;
 
         async function updateData() {
             try {
-                // Lấy data mới nhất từ hầm Supabase
                 const res = await fetch(`${BASE_URL}?select=*&order=timestamp.desc&limit=1&t=${Date.now()}`, {
                     headers: { "apikey": API_KEY, "Authorization": "Bearer " + API_KEY }
                 });
                 const data = await res.json();
-                
                 if (data && data[0]) {
                     const item = data[0];
-                    // Chỉ định đích danh tên cột trong Supabase của ông
                     render("mirx", item.mirx_price_usd, 4);
                     render("turbo", item.turbo_price_usd, 4);
                     render("pnic", item.pnic_price_usd, 4);
                     render("lp", item.total_staked, 0, true);
                 }
-            } catch (e) { console.log("Lỗi Supabase"); }
+            } catch (e) { console.log("Supabase Error"); }
 
-            // Lấy giá BTC, ETH từ quốc tế
             try {
                 const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
                 const m = await resM.json();
@@ -75,7 +71,6 @@
                 elVnd.innerText = isStaked ? "TURBO STAKED" : Math.round(price * RATE_VND).toLocaleString("vi-VN") + " VND";
             }
         }
-
         updateData();
         setInterval(updateData, 5000);
     </script>
