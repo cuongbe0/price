@@ -4,70 +4,52 @@
     <meta charset="UTF-8">
     <title>Crypto Dashboard Live</title>
     <style>
-        body{background:#0b0e11; color:#fff; font-family:Arial, sans-serif; text-align:center; margin:0; padding-bottom:50px;}
-        h2{color:#00ffcc; padding:20px 0;}
-        .section-title{font-size:12px; color:#666; text-align:left; margin:15px 0 0 20px; text-transform:uppercase; letter-spacing:2px;}
-        .row{display:flex; gap:12px; padding:15px; overflow-x:auto;}
-        .card{min-width:160px; flex:1; border:1px solid #2b3139; border-radius:12px; padding:18px; background:#161a1e;}
-        .label{font-size:13px; color:#848e9c; margin-bottom:8px;}
-        .price{font-size:22px; font-weight:bold; color:#eaecef;}
-        .vnd{color:#00ffcc; font-size:13px; margin-top:4px; font-weight:bold;}
+        body{background:#0b0e11; color:#fff; font-family:sans-serif; text-align:center; margin:0;}
+        .row{display:flex; gap:10px; padding:20px; justify-content:center; flex-wrap:wrap;}
+        .card{border:1px solid #2b3139; border-radius:12px; padding:20px; background:#161a1e; min-width:180px;}
+        .price{font-size:24px; font-weight:bold; color:#00ffcc; margin:10px 0;}
+        .label{color:#848e9c; font-size:14px;}
     </style>
 </head>
 <body>
-    <h2>🚀 LIVE CRYPTO DASHBOARD</h2>
-    <div class="section-title">Hệ Sinh Thái</div>
+    <h2 style="margin-top:30px;">🚀 CRYPTO DASHBOARD</h2>
     <div class="row">
-        <div class="card"><div class="label">🌐 MIRX</div><div id="mirx" class="price">--</div><div id="mirx_vnd" class="vnd"></div></div>
-        <div class="card"><div class="label">🚀 TURBO</div><div id="turbo" class="price">--</div><div id="turbo_vnd" class="vnd"></div></div>
-        <div class="card"><div class="label">💎 PNIC</div><div id="pnic" class="price">--</div><div id="pnic_vnd" class="vnd"></div></div>
-        <div class="card"><div class="label">📊 TOTAL STAKED</div><div id="lp" class="price">--</div><div id="lp_vnd" class="vnd"></div></div>
+        <div class="card"><div class="label">MIRX</div><div id="mirx" class="price">--</div></div>
+        <div class="card"><div class="label">TURBO</div><div id="turbo" class="price">--</div></div>
+        <div class="card"><div class="label">STAKED</div><div id="lp" class="price">--</div></div>
     </div>
-    <div class="section-title">Thị Trường</div>
     <div class="row">
-        <div class="card"><div class="label">🟠 BTC</div><div id="btc" class="price">--</div><div id="btc_vnd" class="vnd"></div></div>
-        <div class="card"><div class="label">Ξ ETH</div><div id="eth" class="price">--</div><div id="eth_vnd" class="vnd"></div></div>
-        <div class="card"><div class="label">🟢 AVAX</div><div id="avax" class="price">--</div><div id="avax_vnd" class="vnd"></div></div>
+        <div class="card"><div class="label">BTC</div><div id="btc" class="price">--</div></div>
+        <div class="card"><div class="label">ETH</div><div id="eth" class="price">--</div></div>
     </div>
-    <script>
-        const conf = {
-            k: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZGVoeGh3andnY3NlaHJxdm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzY4MzgsImV4cCI6MjA5MzU1MjgzOH0.Rxx0IZYRRUUMPurhJqO6FdCS8O6t9NWrh_NfcU6onTY",
-            u: "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots",
-            r: 27050
-        };
 
-        async function update() {
+    <script>
+        const K = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZGVoeGh3andnY3NlaHJxdm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzY4MzgsImV4cCI6MjA5MzU1MjgzOH0.Rxx0IZYRRUUMPurhJqO6FdCS8O6t9NWrh_NfcU6onTY";
+        const U = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
+
+        async function load() {
             try {
-                const r = await fetch(conf.u + "?select=*&order=timestamp.desc&limit=1", {
-                    headers: { "apikey": conf.k, "Authorization": "Bearer " + conf.k }
+                // Gọi Supabase
+                const r = await fetch(U + "?select=*&order=timestamp.desc&limit=1", {
+                    headers: { "apikey": K, "Authorization": "Bearer " + K }
                 });
                 const d = await r.json();
                 if (d && d[0]) {
-                    const i = d[0];
-                    show("mirx", i.mirx_price_usd, 4);
-                    show("turbo", i.turbo_price_usd, 4);
-                    show("pnic", i.pnic_price_usd, 4);
-                    show("lp", i.total_staked, 0, true);
+                    document.getElementById("mirx").innerText = "$" + d[0].mirx.toFixed(4);
+                    document.getElementById("turbo").innerText = "$" + d[0].turbo.toFixed(4);
+                    document.getElementById("lp").innerText = d[0].staked.toLocaleString();
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.log("Supabase Error"); }
 
             try {
-                const rM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
+                // Gọi BTC/ETH
+                const rM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH&tsyms=USD");
                 const m = await rM.json();
-                show("btc", m.BTC.USD, 2);
-                show("eth", m.ETH.USD, 2);
-                show("avax", m.AVAX.USD, 4);
+                document.getElementById("btc").innerText = "$" + m.BTC.USD.toLocaleString();
+                document.getElementById("eth").innerText = "$" + m.ETH.USD.toLocaleString();
             } catch (e) {}
         }
-
-        function show(id, v, d, s = false) {
-            const el = document.getElementById(id);
-            const ev = document.getElementById(id + "_vnd");
-            if (!el || v == null) return;
-            el.innerText = (s ? "" : "$") + parseFloat(v).toLocaleString('en-US', {minimumFractionDigits: d});
-            if (ev) ev.innerText = s ? "TURBO STAKED" : Math.round(v * conf.r).toLocaleString("vi-VN") + " VND";
-        }
-        update(); setInterval(update, 5000);
+        load(); setInterval(load, 5000);
     </script>
 </body>
 </html>
