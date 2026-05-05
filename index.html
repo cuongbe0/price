@@ -178,6 +178,7 @@ h1{
 <script>
 
 const USDVND = 26000;
+
 let oldPrices = {};
 
 function updatePrice(id, value){
@@ -216,9 +217,9 @@ function updatePrice(id, value){
   oldPrices[id] = value;
 }
 
-// ======================
-// BINANCE FAST API
-// ======================
+// ==========================
+// BINANCE BTC ETH AVAX
+// ==========================
 
 async function loadBinance(){
 
@@ -239,9 +240,6 @@ async function loadBinance(){
     const avax =
       data.find(x=>x.symbol==='AVAXUSDT');
 
-    const turbo =
-      data.find(x=>x.symbol==='TURBOUSDT');
-
     if(btc){
       updatePrice('btc', btc.price);
     }
@@ -254,28 +252,25 @@ async function loadBinance(){
       updatePrice('avax', avax.price);
     }
 
-    if(turbo){
-      updatePrice('turbo', turbo.price);
-    }
-
   }catch(e){
     console.log('BINANCE ERROR',e);
   }
 }
 
-// ======================
-// PNIC
-// ======================
+// ==========================
+// TURBO + PNIC
+// ==========================
 
-async function loadPNIC(){
+async function loadMiracle(){
 
   try{
 
     const res = await fetch(
-      'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=pnic_price_usd&order=timestamp.desc&limit=1',
+      'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=turbo_price_usd,pnic_price_usd&order=timestamp.desc&limit=1',
       {
         headers:{
-          apikey:'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv'
+          apikey:
+          'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv'
         }
       }
     );
@@ -285,19 +280,24 @@ async function loadPNIC(){
     if(data && data.length){
 
       updatePrice(
+        'turbo',
+        data[0].turbo_price_usd
+      );
+
+      updatePrice(
         'pnic',
         data[0].pnic_price_usd
       );
     }
 
   }catch(e){
-    console.log('PNIC ERROR',e);
+    console.log('MIRACLE ERROR',e);
   }
 }
 
-// ======================
+// ==========================
 // MIRX
-// ======================
+// ==========================
 
 async function loadMIRX(){
 
@@ -307,8 +307,11 @@ async function loadMIRX(){
       'https://jyqtvajmmsvmsfnemuzv.supabase.co/rest/v1/mirx_usd_prices?select=price_usd&order=timestamp.desc&limit=1',
       {
         headers:{
-          apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA',
-          Authorization:'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA'
+          apikey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA',
+
+          Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA'
         }
       }
     );
@@ -330,12 +333,12 @@ async function loadMIRX(){
 
 // LOAD
 loadBinance();
-loadPNIC();
+loadMiracle();
 loadMIRX();
 
 // REFRESH
 setInterval(loadBinance,3000);
-setInterval(loadPNIC,4000);
+setInterval(loadMiracle,4000);
 setInterval(loadMIRX,4000);
 
 </script>
