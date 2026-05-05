@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Crypto Dashboard Realtime</title>
+    <title>Crypto Dashboard Live</title>
     <style>
         body{background:#0b0e11; color:#fff; font-family:Arial, sans-serif; text-align:center; margin:0; padding-bottom:50px;}
         h2{font-size:22px; margin:20px 0; color:#00ffcc;}
@@ -11,14 +11,14 @@
         .card{min-width:160px; flex:1; border:1px solid #1e2329; border-radius:12px; padding:18px; background:#161a1e;}
         .label{font-size:13px; color:#848e9c; margin-bottom:8px;}
         .price{font-size:22px; font-weight:bold; color:#eaecef;}
-        .vnd{color:#00ffcc; font-size:14px; margin-top:4px; font-weight:bold;}
+        .vnd{color:#00ffcc; font-size:13px; margin-top:4px; font-weight:bold;}
     </style>
 </head>
 <body>
 
     <h2>🚀 LIVE CRYPTO DASHBOARD</h2>
 
-    <div class="section-title">Hệ Sinh Thái (Sàn Miracle)</div>
+    <div class="section-title">Hệ Sinh Thái</div>
     <div class="row">
         <div class="card"><div class="label">🌐 MIRX</div><div id="mirx" class="price">--</div><div id="mirx_vnd" class="vnd"></div></div>
         <div class="card"><div class="label">🚀 TURBO</div><div id="turbo" class="price">--</div><div id="turbo_vnd" class="vnd"></div></div>
@@ -26,7 +26,7 @@
         <div class="card"><div class="label">📊 TOTAL STAKED</div><div id="lp" class="price">--</div><div id="lp_vnd" class="vnd"></div></div>
     </div>
 
-    <div class="section-title">Thị Trường Quốc Tế</div>
+    <div class="section-title">Thị Trường</div>
     <div class="row">
         <div class="card"><div class="label">🟠 BTC</div><div id="btc" class="price">--</div><div id="btc_vnd" class="vnd"></div></div>
         <div class="card"><div class="label">Ξ ETH</div><div id="eth" class="price">--</div><div id="eth_vnd" class="vnd"></div></div>
@@ -35,10 +35,11 @@
 
     <script>
         const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
-        let RATE = 27045.5; 
+        const RATE_VND = 27050; 
 
         async function updateData() {
             try {
+                // Ép trình duyệt lấy dữ liệu mới nhất không lấy cache
                 const res = await fetch(`https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1&t=${Date.now()}`, {
                     headers: { "apikey": API_KEY, "Authorization": "Bearer " + API_KEY }
                 });
@@ -46,72 +47,51 @@
                 
                 if (data && data[0]) {
                     const item = data[0];
-                    // Lấy thô dữ liệu từ DB, nếu không có mới dùng số soi được từ web
-                    renderPrice("mirx", item.mirx_price_usd || "3.280329");
-                    renderPrice("turbo", item.turbo_price_usd || "0.072392");
-                    renderPrice("pnic", item.pnic_price_usd || "0.003421");
-                    renderStaked("lp", item.total_staked || "12524817.45");
-                } else {
-                    renderFallback();
+
+                    // Hàm tìm kiếm cột thông minh (không cần fix cứng tên cột)
+                    const pick = (word) => {
+                        for(let key in item) if(key.toLowerCase().includes(word.toLowerCase())) return item[key];
+                        return null;
+                    };
+
+                    // Hiển thị giá từ Database
+                    renderPrice("mirx", pick("mirx"), 6);
+                    renderPrice("turbo", pick("turbo"), 6);
+                    renderPrice("pnic", pick("pnic"), 6);
+                    renderStaked("lp", pick("staked") || pick("lp"));
                 }
             } catch (e) {
-                renderFallback();
+                console.error("Lỗi kết nối API hệ sinh thái");
             }
 
-            // Market data
+            // Lấy giá Market Quốc Tế
             try {
                 const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
                 const mData = await resM.json();
-                if(mData.BTC) renderPrice("btc", mData.BTC.USD);
-                if(mData.ETH) renderPrice("eth", mData.ETH.USD);
-                if(mData.AVAX) renderPrice("avax", mData.AVAX.USD);
+                if(mData.BTC) renderPrice("btc", mData.BTC.USD, 2);
+                if(mData.ETH) renderPrice("eth", mData.ETH.USD, 2);
+                if(mData.AVAX) renderPrice("avax", mData.AVAX.USD, 6);
             } catch (e) {}
         }
 
-        function renderFallback() {
-            renderPrice("mirx", "3.280329");
-            renderPrice("turbo", "0.072392");
-            renderPrice("pnic", "0.003421");
-            renderStaked("lp", "12524817.45");
-        }
-
-        function renderPrice(id, val) {
+        function renderPrice(id, val, decimals) {
+            if (val === null || val === undefined) return;
             const el = document.getElementById(id);
-            const elVnd = document.getElementById(id + "_vnd");
-            if (!el) return;
-
-            // Chuyển sang string để xử lý chính xác số lẻ
-            let priceStr = val.toString();
-            let priceNum = parseFloat(val);
-
-            // Giữ nguyên 6 số lẻ cho token nhỏ, 2 số lẻ cho BTC/ETH
-            if (priceNum < 1000) {
-                el.innerText = "$" + priceNum.toFixed(6);
-            } else {
-                el.innerText = "$" + priceNum.toLocaleString('en-US', {minimumFractionDigits: 2});
-            }
-            
-            if(elVnd) {
-                elVnd.innerText = Math.round(priceNum * RATE).toLocaleString("vi-VN") + " VND";
-            }
+            const price = parseFloat(val);
+            el.innerText = `$${price.toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals})}`;
+            document.getElementById(id + "_vnd").innerText = Math.round(price * RATE_VND).toLocaleString("vi-VN") + " VND";
         }
 
         function renderStaked(id, val) {
+            if (val === null || val === undefined) return;
             const el = document.getElementById(id);
-            const elVnd = document.getElementById(id + "_vnd");
-            if (!el) return;
-            
-            // Ép hiển thị đúng định dạng 12,524,817.45 như trên tab Turbo Token
             const num = parseFloat(val);
-            el.innerText = num.toLocaleString('en-US', { 
-                minimumFractionDigits: 2, 
-                maximumFractionDigits: 2 
-            });
-            if(elVnd) elVnd.innerText = "LP TOKENS";
+            el.innerText = num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById(id + "_vnd").innerText = "LP TOKENS";
         }
 
         updateData();
-        setInterval(updateData, 2000);
+        setInterval(updateData, 5000); // Cập nhật 5 giây một lần cho ổn định
     </script>
 </body>
 </html>
