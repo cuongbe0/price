@@ -33,54 +33,55 @@
     </div>
 
     <script>
-        // Cập nhật đúng URL từ Project Supabase mới của ông
-        const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZGVoeGh3andnY3NlaHJxdm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzY4MzgsImV4cCI6MjA5MzU1MjgzOH0.Rxx0IZYRRUUMPurhJqO6FdCS8O6t9NWrh_NfcU6onTY";
-        const BASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
-        const RATE_VND = 27050; 
+    // 1. Chìa khóa vạn năng đã khớp với dự án zndehxhw...
+    const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZGVoeGh3andnY3NlaHJxdm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzY4MzgsImV4cCI6MjA5MzU1MjgzOH0.Rxx0IZYRRUUMPurhJqO6FdCS8O6t9NWrh_NfcU6onTY"; 
+    const BASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
+    const RATE_VND = 27050; 
 
-        async function updateData() {
-            try {
-                const res = await fetch(`${BASE_URL}?select=*&order=timestamp.desc&limit=1&t=${Date.now()}`, {
-                    headers: { "apikey": API_KEY, "Authorization": "Bearer " + API_KEY }
-                });
-                const data = await res.json();
-                
-                if (data && data[0]) {
-                    const item = data[0];
-                    // Tự tìm cột: mirx_price_usd, turbo_price_usd...
-                    const getVal = (k) => {
-                        for(let key in item) if(key.toLowerCase().includes(k)) return item[key];
-                        return null;
-                    };
-
-                    render("mirx", getVal("mirx"), 6);
-                    render("turbo", getVal("turbo"), 6);
-                    render("pnic", getVal("pnic"), 6);
-                    render("lp", getVal("staked") || getVal("total"), 2, true);
+    async function updateData() {
+        try {
+            // Lấy dữ liệu mới nhất (t=Date.now để tránh bị lưu bộ nhớ đệm cũ)
+            const res = await fetch(`${BASE_URL}?select=*&order=timestamp.desc&limit=1&t=${Date.now()}`, {
+                headers: { 
+                    "apikey": API_KEY, 
+                    "Authorization": "Bearer " + API_KEY 
                 }
-            } catch (e) { console.error("Lỗi lấy dữ liệu hệ sinh thái"); }
-
-            // Giá quốc tế
-            try {
-                const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
-                const m = await resM.json();
-                if(m.BTC) render("btc", m.BTC.USD, 2);
-                if(m.ETH) render("eth", m.ETH.USD, 2);
-                if(m.AVAX) render("avax", m.AVAX.USD, 4);
-            } catch (e) {}
+            });
+            const data = await res.json();
+            
+            if (data && data.length > 0) {
+                const item = data[0];
+                
+                // Gán đúng tên cột ông đã tạo trong SQL Editor
+                render("mirx", item.mirx_price_usd, 6);
+                render("turbo", item.turbo_price_usd, 6);
+                render("pnic", item.pnic_price_usd, 6);
+                render("lp", item.total_staked, 2, true);
+            }
+        } catch (e) {
+            console.error("Lỗi kết nối hệ sinh thái!");
         }
 
-        function render(id, val, dec, isStaked = false) {
-            if (val === null || val === undefined) return;
-            const price = parseFloat(val);
-            const el = document.getElementById(id);
-            const elVnd = document.getElementById(id + "_vnd");
-            el.innerText = (isStaked ? "" : "$") + price.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec});
-            elVnd.innerText = isStaked ? "LP TOKENS" : Math.round(price * RATE_VND).toLocaleString("vi-VN") + " VND";
-        }
+        // Lấy giá quốc tế (BTC, ETH, AVAX)
+        try {
+            const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
+            const m = await resM.json();
+            if(m.BTC) render("btc", m.BTC.USD, 2);
+            if(m.ETH) render("eth", m.ETH.USD, 2);
+            if(m.AVAX) render("avax", m.AVAX.USD, 4);
+        } catch (e) {}
+    }
 
-        updateData();
-        setInterval(updateData, 5000);
-    </script>
-</body>
-</html>
+    function render(id, val, dec, isStaked = false) {
+        const el = document.getElementById(id);
+        const elVnd = document.getElementById(id + "_vnd");
+        if (!el || val === null || val === undefined) return;
+
+        const price = parseFloat(val);
+        el.innerText = (isStaked ? "" : "$") + price.toLocaleString('en-US', {minimumFractionDigits: dec});
+        elVnd.innerText = isStaked ? "LP TOKENS" : Math.round(price * RATE_VND).toLocaleString("vi-VN") + " VND";
+    }
+
+    updateData();
+    setInterval(updateData, 5000); 
+</script>
