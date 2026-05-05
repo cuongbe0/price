@@ -34,9 +34,9 @@ h2{font-size:22px; margin:20px 0; color:#00ffcc;}
   </div>
 
   <div class="card">
-    <div class="label">📊 STAKED</div>
+    <div class="label">📊 LP STAKED</div>
     <div id="staked" class="price">...</div>
-    <div class="vnd">LP TOKENS</div>
+    <div class="vnd">TOKENS</div>
   </div>
 
   <div class="card">
@@ -61,10 +61,9 @@ h2{font-size:22px; margin:20px 0; color:#00ffcc;}
 <script>
 const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
 const SUPABASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
-let RATE = 25000;
+let RATE = 25400;
 let old = {};
 
-// Load tỷ giá VND
 async function loadRate(){
   try{
     const res = await fetch("https://open.er-api.com/v6/latest/USD");
@@ -73,7 +72,6 @@ async function loadRate(){
   }catch(e){}
 }
 
-// Load MIRX, TURBO, PNIC & STAKED từ Supabase
 async function loadTokens(){
   try{
     const res = await fetch(
@@ -81,24 +79,23 @@ async function loadTokens(){
       { headers:{ "apikey": API_KEY, "Authorization": "Bearer " + API_KEY } }
     );
     const data = await res.json();
-    if(!data.length) return;
+    if(!data || !data.length) return;
 
     const item = data[0];
     update("turbo", item.turbo, true);
     update("pnic", item.pnic, true);
     
-    // Cập nhật STAKED (không dùng ký hiệu $ và không nhân tỷ giá VND)
-    const elStaked = document.getElementById("staked");
-    const valStaked = Math.floor(item.staked || 0);
-    elStaked.innerText = valStaked.toLocaleString();
-    if(old["staked"] && valStaked > old["staked"]) elStaked.style.color = "#0ecb81";
-    else if(old["staked"] && valStaked < old["staked"]) elStaked.style.color = "#f6465d";
-    old["staked"] = valStaked;
+    // Cập nhật STAKED
+    const elS = document.getElementById("staked");
+    const valS = Math.floor(item.staked || 0);
+    elS.innerText = valS.toLocaleString();
+    if(old["staked"] && valS > old["staked"]) elS.style.color = "#0ecb81";
+    else if(old["staked"] && valS < old["staked"]) elS.style.color = "#f6465d";
+    old["staked"] = valS;
 
   }catch(e){ console.log("Token lỗi"); }
 }
 
-// Load Market tự động
 async function loadMarket(){
   try{
     const res = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
@@ -106,18 +103,18 @@ async function loadMarket(){
     update("btc", data.BTC.USD, true);
     update("eth", data.ETH.USD, true);
     update("avax", data.AVAX.USD, true);
-  }catch(e){ console.log("Market lỗi"); }
+  }catch(e){}
 }
 
 function update(id, value, isPrice){
   const el = document.getElementById(id);
-  const elVnd = document.getElementById(id+"_vnd");
+  const elV = document.getElementById(id+"_vnd");
   const v = Number(value);
   if(!v || !el) return;
 
   if(isPrice) {
     el.innerText = "$" + (v < 1 ? v.toFixed(6) : v.toLocaleString());
-    if(elVnd) elVnd.innerText = Math.round(v * RATE).toLocaleString("vi-VN") + " đ";
+    if(elV) elV.innerText = Math.round(v * RATE).toLocaleString("vi-VN") + " đ";
   }
 
   if(old[id]){
@@ -134,6 +131,5 @@ setInterval(loadMarket, 3000);
 loadTokens();
 loadMarket();
 </script>
-
 </body>
 </html>
