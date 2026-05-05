@@ -2,17 +2,17 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Miracle Dashboard</title>
+    <title>Miracle Dashboard Live</title>
     <style>
         body{background:#0b0e11; color:#fff; font-family:sans-serif; text-align:center; margin:0; padding:20px;}
-        .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
-        .card{border:1px solid #2b3139; border-radius:12px; padding:15px; background:#161a1e; min-width:160px; margin-bottom:10px;}
-        .price{font-size:22px; font-weight:bold; color:#00ffcc;}
-        .label{color:#848e9c; font-size:12px; text-transform:uppercase;}
+        .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;}
+        .card{border:1px solid #2b3139; border-radius:12px; padding:15px; background:#161a1e; min-width:150px;}
+        .price{font-size:22px; font-weight:bold; color:#00ffcc; margin-top:5px;}
+        .label{color:#848e9c; font-size:11px; text-transform:uppercase; letter-spacing:1px;}
     </style>
 </head>
 <body>
-    <h2 style="color:#00ffcc">🚀 MIRACLE ECOSYSTEM</h2>
+    <h2 style="color:#00ffcc; margin-bottom:20px;">🚀 MIRACLE ECOSYSTEM LIVE</h2>
     
     <div class="row">
         <div class="card"><div class="label">🌐 MIRX</div><div id="mirx" class="price">--</div></div>
@@ -24,6 +24,7 @@
     <div class="row">
         <div class="card"><div class="label">🟠 BTC</div><div id="btc" class="price">--</div></div>
         <div class="card"><div class="label">Ξ ETH</div><div id="eth" class="price">--</div></div>
+        <div class="card"><div class="label">🟢 AVAX</div><div id="avax" class="price">--</div></div>
     </div>
 
     <script>
@@ -31,30 +32,31 @@
         const U = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
 
         async function update() {
-            // 1. Lấy dữ liệu từ Supabase (MIRX, TURBO, PNIC, STAKED)
+            // 1. Lấy từ Supabase (Số do ông nạp)
             try {
                 const r = await fetch(U + "?select=*&order=timestamp.desc&limit=1", {
                     headers: { "apikey": K, "Authorization": "Bearer " + K }
                 });
                 const d = await r.json();
                 if (d && d[0]) {
-                    document.getElementById("mirx").innerText = "$" + d[0].mirx.toFixed(4);
-                    document.getElementById("turbo").innerText = "$" + d[0].turbo.toFixed(4);
-                    document.getElementById("pnic").innerText = "$" + d[0].pnic.toFixed(4);
+                    document.getElementById("mirx").innerText = "$" + parseFloat(d[0].mirx).toFixed(4);
+                    document.getElementById("turbo").innerText = "$" + parseFloat(d[0].turbo).toFixed(4);
+                    document.getElementById("pnic").innerText = "$" + parseFloat(d[0].pnic).toFixed(4);
                     document.getElementById("lp").innerText = Math.floor(d[0].staked).toLocaleString();
                 }
-            } catch (e) { console.log("Lỗi hầm Supabase"); }
+            } catch (e) { console.log("Lỗi Supabase"); }
 
-            // 2. Lấy dữ liệu quốc tế giống như trang price2
+            // 2. Lấy giá quốc tế (Tự động giống price2)
             try {
-                const rM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH&tsyms=USD");
+                const rM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
                 const m = await rM.json();
-                document.getElementById("btc").innerText = "$" + m.BTC.USD.toLocaleString();
-                document.getElementById("eth").innerText = "$" + m.ETH.USD.toLocaleString();
+                if(m.BTC) document.getElementById("btc").innerText = "$" + m.BTC.USD.toLocaleString();
+                if(m.ETH) document.getElementById("eth").innerText = "$" + m.ETH.USD.toLocaleString();
+                if(m.AVAX) document.getElementById("avax").innerText = "$" + m.AVAX.USD.toFixed(2);
             } catch (e) {}
         }
 
-        update(); 
+        update();
         setInterval(update, 5000);
     </script>
 </body>
