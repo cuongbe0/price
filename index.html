@@ -1,3 +1,6 @@
+# File index.html hoàn chỉnh
+
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -131,7 +134,7 @@ async function loadRate(){
 async function loadTokens(){
   try{
     const res = await fetch(
-      "https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=turbo_price_usd,pnic_price_usd,total_staked,time_left&order=timestamp.desc&limit=1",
+      "https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1",
       {
         headers:{
           "apikey": API_KEY,
@@ -141,16 +144,31 @@ async function loadTokens(){
     );
 
     const data = await res.json();
-    if(!data.length) return;
+
+    console.log(data);
+
+    if(!data || !data.length) return;
 
     update("turbo", data[0].turbo_price_usd);
     update("pnic", data[0].pnic_price_usd);
 
-    updateStaked(data[0].total_staked);
-    updateTime(data[0].time_left);
+    // fallback nhiều tên field
+    updateStaked(
+      data[0].total_staked ||
+      data[0].total_lp_staked ||
+      data[0].lp_total_staked ||
+      0
+    );
+
+    updateTime(
+      data[0].time_left ||
+      data[0].time_remaining ||
+      data[0].countdown ||
+      "N/A"
+    );
 
   }catch(e){
-    console.log("Token lỗi");
+    console.log("Token lỗi", e);
   }
 }
 
@@ -228,3 +246,4 @@ loadMarket();
 
 </body>
 </html>
+```
