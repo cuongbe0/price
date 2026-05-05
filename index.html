@@ -1,172 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LP STAKED PRO CHART</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        *{margin:0; padding:0; box-sizing:border-box;}
-        body{background:#050811; color:white; font-family:Arial,sans-serif; overflow:hidden;}
-        .container{width:100%; height:100vh; padding:12px;}
-        .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
-        .left h1{font-size:28px; color: #848e9c;}
-        .staked-value{color:#00ffcc; font-size:42px; font-weight:bold; margin-top:5px;}
-        .indicators{display:flex; gap:10px; margin-top:8px;}
-        .badge{background:#111827; padding:6px 12px; border-radius:10px; font-size:14px; border: 1px solid #2b3139;}
-        .chart-wrap{width:100%; height:82vh; background:#0b1220; border-radius:18px; padding:10px; border: 1px solid #1e2329;}
-        canvas{width:100% !important; height:100% !important;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miracle Dashboard Live</title>
+<style>
+body{background:#0b0e11; color:#fff; font-family:Arial; text-align:center; margin:0;}
+h2{font-size:22px; margin:20px 0; color:#00ffcc;}
+.row{display:flex; gap:15px; overflow-x:auto; padding:15px; justify-content: center;}
+.row::-webkit-scrollbar{height:6px;}
+.row::-webkit-scrollbar-thumb{background:#00ffcc; border-radius:10px;}
+.card{min-width:170px; flex:0 0 auto; border:1px solid #00ffcc; border-radius:14px; padding:20px; background: #161a1e;}
+.label{font-size:14px; color: #848e9c; text-transform: uppercase;}
+.price{font-size:24px; font-weight:bold; margin-top:10px; transition: color 0.3s;}
+.vnd{color:#aaa; font-size:14px; margin-top: 5px;}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="topbar">
-        <div class="left">
-            <h1>TOTAL LP STAKED</h1>
-            <div class="staked-value" id="stakedValue">Loading...</div>
-            <div class="indicators">
-                <div class="badge" id="ma7Box">MA7: --</div>
-                <div class="badge" id="ma25Box">MA25: --</div>
-                <div class="badge" id="trendBox">Trend: --</div>
-            </div>
-        </div>
-    </div>
-    <div class="chart-wrap">
-        <canvas id="chart"></canvas>
-    </div>
+<h2>🚀 MIRACLE ECOSYSTEM LIVE</h2>
+
+<div class="row">
+  <div class="card">
+    <div class="label">🚀 TURBO</div>
+    <div id="turbo" class="price">...</div>
+    <div id="turbo_vnd" class="vnd"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">💎 PNIC</div>
+    <div id="pnic" class="price">...</div>
+    <div id="pnic_vnd" class="vnd"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">📊 STAKED</div>
+    <div id="staked" class="price">...</div>
+    <div class="vnd">LP TOKENS</div>
+  </div>
+
+  <div class="card">
+    <div class="label">🟠 BTC</div>
+    <div id="btc" class="price">...</div>
+    <div id="btc_vnd" class="vnd"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">Ξ ETH</div>
+    <div id="eth" class="price">...</div>
+    <div id="eth_vnd" class="vnd"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">🟢 AVAX</div>
+    <div id="avax" class="price">...</div>
+    <div id="avax_vnd" class="vnd"></div>
+  </div>
 </div>
 
 <script>
-    // Dùng Key của dự án zndehxhw...
-    const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
-    // Đổi API URL để lấy cột 'staked' thay vì 'turbo_price_usd'
-    const API_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots?select=staked,timestamp&order=timestamp.desc&limit=1000";
+const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
+const SUPABASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
+let RATE = 25000;
+let old = {};
 
-    const ctx = document.getElementById("chart");
+// Load tỷ giá VND
+async function loadRate(){
+  try{
+    const res = await fetch("https://open.er-api.com/v6/latest/USD");
+    const data = await res.json();
+    RATE = data.rates.VND;
+  }catch(e){}
+}
 
-    function movingAverage(data, period){
-        return data.map((_, index) => {
-            if(index < period) return null;
-            const slice = data.slice(index - period, index);
-            return slice.reduce((a,b)=>a+b,0) / period;
-        });
-    }
+// Load MIRX, TURBO, PNIC & STAKED từ Supabase
+async function loadTokens(){
+  try{
+    const res = await fetch(
+      `${SUPABASE_URL}?select=turbo,pnic,staked&order=timestamp.desc&limit=1`,
+      { headers:{ "apikey": API_KEY, "Authorization": "Bearer " + API_KEY } }
+    );
+    const data = await res.json();
+    if(!data.length) return;
 
-    const chart = new Chart(ctx, {
-        type:"line",
-        data:{
-            labels:[],
-            datasets:[
-                {
-                    label:"LP STAKED",
-                    data:[],
-                    borderColor: "#00ffcc",
-                    backgroundColor: "rgba(0, 255, 204, 0.1)",
-                    borderWidth:3,
-                    fill: true,
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:"MA7 (Ngắn hạn)",
-                    data:[],
-                    borderColor: "#ffd400",
-                    borderWidth:1.5,
-                    tension:0.2,
-                    pointRadius:0,
-                    borderDash: [5, 5]
-                },
-                {
-                    label:"MA25 (Dài hạn)",
-                    data:[],
-                    borderColor: "#ff3e3e",
-                    borderWidth:1.5,
-                    tension:0.2,
-                    pointRadius:0
-                }
-            ]
-        },
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            animation:false,
-            interaction:{ intersect:false, mode:'index' },
-            plugins:{
-                legend:{ labels:{ color:"#848e9c", font: { size: 12 } } }
-            },
-            scales:{
-                x:{
-                    ticks:{ color:"#5e6673", autoSkip:true, maxTicksLimit:8 },
-                    grid:{ color:"rgba(255,255,255,0.02)" }
-                },
-                y:{
-                    ticks:{ 
-                        color:"#5e6673",
-                        callback: function(value) {
-                            return value.toLocaleString();
-                        }
-                    },
-                    grid:{ color:"rgba(255,255,255,0.02)" }
-                }
-            }
-        }
-    });
+    const item = data[0];
+    update("turbo", item.turbo, true);
+    update("pnic", item.pnic, true);
+    
+    // Cập nhật STAKED (không dùng ký hiệu $ và không nhân tỷ giá VND)
+    const elStaked = document.getElementById("staked");
+    const valStaked = Math.floor(item.staked || 0);
+    elStaked.innerText = valStaked.toLocaleString();
+    if(old["staked"] && valStaked > old["staked"]) elStaked.style.color = "#0ecb81";
+    else if(old["staked"] && valStaked < old["staked"]) elStaked.style.color = "#f6465d";
+    old["staked"] = valStaked;
 
-    async function loadChart(){
-        try{
-            const response = await fetch(API_URL, {
-                headers:{
-                    "apikey":API_KEY,
-                    "Authorization": "Bearer " + API_KEY
-                }
-            });
-            const data = await response.json();
-            data.reverse();
+  }catch(e){ console.log("Token lỗi"); }
+}
 
-            const labels = data.map(item => {
-                return new Date(item.timestamp).toLocaleString("vi-VN",{
-                    day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"
-                });
-            });
+// Load Market tự động
+async function loadMarket(){
+  try{
+    const res = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
+    const data = await res.json();
+    update("btc", data.BTC.USD, true);
+    update("eth", data.ETH.USD, true);
+    update("avax", data.AVAX.USD, true);
+  }catch(e){ console.log("Market lỗi"); }
+}
 
-            const stakedValues = data.map(item => Number(item.staked || 0));
+function update(id, value, isPrice){
+  const el = document.getElementById(id);
+  const elVnd = document.getElementById(id+"_vnd");
+  const v = Number(value);
+  if(!v || !el) return;
 
-            const ma7 = movingAverage(stakedValues, 7);
-            const ma25 = movingAverage(stakedValues, 25);
+  if(isPrice) {
+    el.innerText = "$" + (v < 1 ? v.toFixed(6) : v.toLocaleString());
+    if(elVnd) elVnd.innerText = Math.round(v * RATE).toLocaleString("vi-VN") + " đ";
+  }
 
-            chart.data.labels = labels;
-            chart.data.datasets[0].data = stakedValues;
-            chart.data.datasets[1].data = ma7;
-            chart.data.datasets[2].data = ma25;
-            chart.update();
+  if(old[id]){
+    if(v > old[id]) el.style.color = "#0ecb81";
+    else if(v < old[id]) el.style.color = "#f6465d";
+  }
+  old[id] = v;
+}
 
-            const latestStaked = stakedValues[stakedValues.length - 1];
-            document.getElementById("stakedValue").innerText = latestStaked.toLocaleString();
-
-            const lastMA7 = ma7[ma7.length - 1];
-            const lastMA25 = ma25[ma25.length - 1];
-
-            if(lastMA7) document.getElementById("ma7Box").innerText = "MA7: " + Math.floor(lastMA7).toLocaleString();
-            if(lastMA25) document.getElementById("ma25Box").innerText = "MA25: " + Math.floor(lastMA25).toLocaleString();
-
-            const trendBox = document.getElementById("trendBox");
-            if(lastMA7 > lastMA25){
-                trendBox.innerText = "Trend: ACCUMULATING"; // Đang tăng trưởng
-                trendBox.style.color = "#00ffcc";
-            }else{
-                trendBox.innerText = "Trend: REDUCING"; // Đang giảm
-                trendBox.style.color = "#ff3e3e";
-            }
-        }
-        catch(error){
-            console.log(error);
-            document.getElementById("stakedValue").innerText = "API ERROR";
-        }
-    }
-
-    loadChart();
-    setInterval(loadChart, 10000); // 10 giây cập nhật 1 lần cho nhẹ
+loadRate();
+setInterval(loadRate, 60000);
+setInterval(loadTokens, 2000);
+setInterval(loadMarket, 3000);
+loadTokens();
+loadMarket();
 </script>
+
 </body>
 </html>
