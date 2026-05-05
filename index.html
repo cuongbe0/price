@@ -3,28 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Miracle Ecosystem Dashboard Live</title>
+<title>Crypto Dashboard</title>
 <style>
   body{background:#0b0e11; color:#fff; font-family:Arial; text-align:center; margin:0;}
   h2{font-size:22px; margin:20px 0; color:#00ffcc;}
-  .row{display:flex; gap:12px; overflow-x:auto; padding:15px; justify-content:center; flex-wrap:wrap;}
-  .card{min-width:160px; border:1px solid #2b3139; border-radius:12px; padding:20px; background:#161a1e;}
-  .label{font-size:12px; color:#848e9c; text-transform:uppercase; letter-spacing:1px;}
-  .price{font-size:24px; font-weight:bold; margin-top:8px;}
-  .vnd{color:#aaa; font-size:13px; margin-top:5px;}
+  .row{display:flex; gap:15px; overflow-x:auto; padding:15px; justify-content:center; flex-wrap:wrap;}
+  .card{min-width:170px; flex:0 0 auto; border:1px solid #00ffcc; border-radius:14px; padding:20px; background:#161a1e;}
+  .label{font-size:16px; color:#848e9c;}
+  .price{font-size:26px; font-weight:bold; margin-top:10px;}
+  .vnd{color:#aaa; font-size:16px;}
 </style>
 </head>
 <body>
 
-<h2>🚀 MIRACLE ECOSYSTEM LIVE</h2>
+<h2>🚀 LIVE CRYPTO DASHBOARD</h2>
 
 <div class="row">
-  <div class="card">
-    <div class="label">🌐 MIRX</div>
-    <div id="mirx" class="price">...</div>
-    <div id="mirx_vnd" class="vnd"></div>
-  </div>
-
   <div class="card">
     <div class="label">🚀 TURBO</div>
     <div id="turbo" class="price">...</div>
@@ -63,75 +57,51 @@
 </div>
 
 <script>
-let rate = 25400; // Tỷ giá dự phòng
+const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
+const SUPABASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
+let RATE = 25400;
 
-// 1. Tự động lấy tỷ giá VND
-async function loadRate(){
+async function loadData(){
   try{
-    const res = await fetch("https://open.er-api.com/v6/latest/USD");
-    const data = await res.json(); rate = data.rates.VND;
-  }catch(e){}
+    // 1. Lấy tỷ giá VND
+    const resRate = await fetch("https://open.er-api.com/v6/latest/USD");
+    const dataRate = await resRate.json();
+    RATE = dataRate.rates.VND;
+
+    // 2. Lấy TURBO, PNIC, STAKED từ Supabase (Giống cách price2 lấy dữ liệu)
+    const resSup = await fetch(`${SUPABASE_URL}?select=turbo,pnic,staked&order=timestamp.desc&limit=1`, {
+      headers: { "apikey": API_KEY, "Authorization": "Bearer " + API_KEY }
+    });
+    const dataSup = await resSup.json();
+    if(dataSup && dataSup[0]){
+      const d = dataSup[0];
+      updateUI("turbo", d.turbo);
+      updateUI("pnic", d.pnic);
+      // Hiện con số LP Staked nguyên bản
+      document.getElementById("staked").innerText = Math.floor(d.staked).toLocaleString("vi-VN");
+    }
+
+    // 3. Lấy BTC, ETH, AVAX (Dùng API của price2 cho chắc ăn)
+    const resM = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,avalanche-2&vs_currencies=usd");
+    const dataM = await resM.json();
+    updateUI("btc", dataM.bitcoin.usd);
+    updateUI("eth", dataM.ethereum.usd);
+    updateUI("avax", dataM["avalanche-2"].usd);
+
+  }catch(e){ console.log("Lỗi tải dữ liệu"); }
 }
 
-// 2. Lấy dữ liệu MIRX, PNIC từ sàn Miracle DEX
-async function loadMiraclePrices(){
-  try{
-    const res = await fetch("https://api.miracledex.net/api/v1/tokens/prices");
-    const data = await res.json();
-    renderPrice("mirx", data.MIRX);
-    renderPrice("pnic", data.PNIC);
-  }catch(e){
-    console.log("Lỗi tải giá sàn MIRX");
-  }
-}
-
-// 3. Lấy dữ liệu TURBO & STAKED từ API staking
-async function loadTurboStats(){
-  try{
-    const res = await fetch("https://api.miracledex.net/api/v1/turbo/stats");
-    const data = await res.json();
-    renderPrice("turbo", data.price);
-    // Chỉ lấy con số nguyên của STAKED giống ông yêu cầu
-    document.getElementById("staked").innerText = Math.floor(data.staked).toLocaleString("vi-VN");
-  }catch(e){
-    console.log("Lỗi tải LP Staked");
-  }
-}
-
-// 4. Lấy giá quốc tế (BTC, ETH, AVAX)
-async function loadMarketPrices(){
-  try{
-    const res = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
-    const data = await res.json();
-    renderPrice("btc", data.BTC.USD);
-    renderPrice("eth", data.ETH.USD);
-    renderPrice("avax", data.AVAX.USD);
-  }catch(e){
-    console.log("Lỗi tải giá thị trường");
-  }
-}
-
-function renderPrice(id, val){
+function updateUI(id, val){
   const el = document.getElementById(id);
-  const elV = document.getElementById(id+"_vnd");
-  const v = Number(val);
-  if(!v || !el) return;
+  const elVnd = document.getElementById(id+"_vnd");
+  if(!el || !val) return;
   
-  el.innerText = "$" + (v < 1 ? v.toFixed(6) : v.toLocaleString("en-US"));
-  if(elV) elV.innerText = Math.round(v * rate).toLocaleString("vi-VN") + " đ";
+  el.innerText = "$" + (val < 1 ? val.toFixed(6) : val.toLocaleString());
+  if(elVnd) elVnd.innerText = Math.round(val * RATE).toLocaleString("vi-VN") + " đ";
 }
 
-// === RUN ===
-loadRate();
-setInterval(loadRate, 60000);
-
-loadMiraclePrices();
-loadTurboStats();
-loadMarketPrices();
-
-setInterval(loadMiraclePrices, 5000); // Cập nhật mỗi 5 giây
-setInterval(loadTurboStats, 5000);
-setInterval(loadMarketPrices, 3000);
+loadData();
+setInterval(loadData, 5000);
 </script>
 
 </body>
