@@ -140,7 +140,8 @@ h1{
 
 <script>
 
-const API_KEY = 'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv';
+const API_KEY =
+'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv';
 
 let RATE = 25000;
 let oldPrice = {};
@@ -149,7 +150,9 @@ async function loadRate(){
 
   try{
 
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const res =
+      await fetch('https://open.er-api.com/v6/latest/USD');
+
     const data = await res.json();
 
     RATE = data.rates.VND;
@@ -170,7 +173,7 @@ async function loadTokens(){
       'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1',
       {
         headers:{
-          apikey: API_KEY,
+          apikey:API_KEY,
           Authorization:'Bearer ' + API_KEY
         }
       }
@@ -178,7 +181,7 @@ async function loadTokens(){
 
     const data = await res.json();
 
-    if(!data || !data.length) return;
+    if(!data.length) return;
 
     const item = data[0];
 
@@ -197,23 +200,33 @@ async function loadMarket(){
 
   try{
 
-    const res = await fetch('https://api.coincap.io/v2/assets');
+    const res = await fetch(
+      'https://api.coincap.io/v2/assets?ids=bitcoin,ethereum,avalanche'
+    );
 
     const json = await res.json();
 
     const assets = json.data;
 
-    const btc = assets.find(x => x.symbol === 'BTC');
-    const eth = assets.find(x => x.symbol === 'ETH');
-    const avax = assets.find(x => x.symbol === 'AVAX');
+    assets.forEach(asset => {
 
-    updatePrice('btc', btc.priceUsd);
-    updatePrice('eth', eth.priceUsd);
-    updatePrice('avax', avax.priceUsd);
+      if(asset.symbol === 'BTC'){
+        updatePrice('btc', asset.priceUsd);
+      }
+
+      if(asset.symbol === 'ETH'){
+        updatePrice('eth', asset.priceUsd);
+      }
+
+      if(asset.symbol === 'AVAX'){
+        updatePrice('avax', asset.priceUsd);
+      }
+
+    });
 
   }catch(e){
 
-    console.log('market error');
+    console.log('market error', e);
 
   }
 
@@ -258,9 +271,9 @@ loadRate();
 loadTokens();
 loadMarket();
 
-setInterval(loadRate,60000);
-setInterval(loadTokens,3000);
-setInterval(loadMarket,5000);
+setInterval(loadRate, 60000);
+setInterval(loadTokens, 3000);
+setInterval(loadMarket, 5000);
 
 </script>
 
