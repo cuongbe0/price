@@ -75,18 +75,6 @@ h1{
   </div>
 
   <div class="card">
-    <div class="label">🏦 Total Staked</div>
-    <div id="staked" class="price">...</div>
-    <div id="staked_usd" class="vnd"></div>
-  </div>
-
-  <div class="card">
-    <div class="label">⏳ Time Left</div>
-    <div id="timeleft" class="price">...</div>
-    <div class="vnd">Remaining</div>
-  </div>
-
-  <div class="card">
     <div class="label">🟠 BTC</div>
     <div id="btc" class="price">...</div>
     <div id="btc_vnd" class="vnd"></div>
@@ -145,8 +133,7 @@ async function loadTokens(){
 
     console.log(item);
 
-    updatePrice('turbo', item.turbo_price_usd);
-    updatePrice('pnic', item.pnic_price_usd);
+   
 
     // scrape trực tiếp từ TurboDex
     try {
