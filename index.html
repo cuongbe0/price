@@ -16,7 +16,6 @@
 </head>
 <body>
     <h2>🚀 LIVE CRYPTO DASHBOARD</h2>
-
     <div class="section-title">Hệ Sinh Thái</div>
     <div class="row">
         <div class="card"><div class="label">🌐 MIRX</div><div id="mirx" class="price">--</div><div id="mirx_vnd" class="vnd"></div></div>
@@ -24,14 +23,12 @@
         <div class="card"><div class="label">💎 PNIC</div><div id="pnic" class="price">--</div><div id="pnic_vnd" class="vnd"></div></div>
         <div class="card"><div class="label">📊 TOTAL STAKED</div><div id="lp" class="price">--</div><div id="lp_vnd" class="vnd"></div></div>
     </div>
-
     <div class="section-title">Thị Trường</div>
     <div class="row">
         <div class="card"><div class="label">🟠 BTC</div><div id="btc" class="price">--</div><div id="btc_vnd" class="vnd"></div></div>
         <div class="card"><div class="label">Ξ ETH</div><div id="eth" class="price">--</div><div id="eth_vnd" class="vnd"></div></div>
         <div class="card"><div class="label">🟢 AVAX</div><div id="avax" class="price">--</div><div id="avax_vnd" class="vnd"></div></div>
     </div>
-
     <script>
         const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZGVoeGh3andnY3NlaHJxdm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzY4MzgsImV4cCI6MjA5MzU1MjgzOH0.Rxx0IZYRRUUMPurhJqO6FdCS8O6t9NWrh_NfcU6onTY";
         const BASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
@@ -51,7 +48,6 @@
                     render("lp", item.total_staked, 0, true);
                 }
             } catch (e) { console.log("Supabase Error"); }
-
             try {
                 const resM = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
                 const m = await resM.json();
