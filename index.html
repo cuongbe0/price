@@ -10,7 +10,7 @@ h2{font-size:22px; margin:20px 0; color:#00ffcc;}
 .row{display:flex; gap:15px; overflow-x:auto; padding:15px; justify-content: center;}
 .row::-webkit-scrollbar{height:6px;}
 .row::-webkit-scrollbar-thumb{background:#00ffcc; border-radius:10px;}
-.card{min-width:170px; flex:0 0 auto; border:1px solid #00ffcc; border-radius:14px; padding:20px; background: #161a1e;}
+.card{min-width:170px; flex:0 0 auto; border:1px solid #2b3139; border-radius:14px; padding:20px; background: #161a1e;}
 .label{font-size:14px; color: #848e9c; text-transform: uppercase;}
 .price{font-size:24px; font-weight:bold; margin-top:10px; transition: color 0.3s;}
 .vnd{color:#aaa; font-size:14px; margin-top: 5px;}
@@ -36,7 +36,7 @@ h2{font-size:22px; margin:20px 0; color:#00ffcc;}
   <div class="card">
     <div class="label">📊 LP STAKED</div>
     <div id="staked" class="price">...</div>
-    <div class="vnd">TOKENS</div>
+    <div class="vnd">LP TOKENS</div>
   </div>
 
   <div class="card">
@@ -59,6 +59,7 @@ h2{font-size:22px; margin:20px 0; color:#00ffcc;}
 </div>
 
 <script>
+// Key và URL chuẩn từ dự án zndehxhw... của ông
 const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
 const SUPABASE_URL = "https://zndehxhwjwgcsehrqvoq.supabase.co/rest/v1/price_snapshots";
 let RATE = 25400;
@@ -74,18 +75,22 @@ async function loadRate(){
 
 async function loadTokens(){
   try{
+    // Chỉnh select đúng tên cột mirx, turbo, pnic, staked
     const res = await fetch(
       `${SUPABASE_URL}?select=turbo,pnic,staked&order=timestamp.desc&limit=1`,
       { headers:{ "apikey": API_KEY, "Authorization": "Bearer " + API_KEY } }
     );
     const data = await res.json();
-    if(!data || !data.length) return;
+    if(!data || data.length === 0) return;
 
     const item = data[0];
-    update("turbo", item.turbo, true);
-    update("pnic", item.pnic, true);
     
-    // Cập nhật STAKED
+    // Cập nhật giá Turbo
+    updateUI("turbo", item.turbo, true);
+    // Cập nhật giá PNIC
+    updateUI("pnic", item.pnic, true);
+    
+    // Cập nhật số lượng STAKED (Số nguyên)
     const elS = document.getElementById("staked");
     const valS = Math.floor(item.staked || 0);
     elS.innerText = valS.toLocaleString();
@@ -93,20 +98,20 @@ async function loadTokens(){
     else if(old["staked"] && valS < old["staked"]) elS.style.color = "#f6465d";
     old["staked"] = valS;
 
-  }catch(e){ console.log("Token lỗi"); }
+  }catch(e){ console.log("Lỗi Supabase"); }
 }
 
 async function loadMarket(){
   try{
     const res = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD");
     const data = await res.json();
-    update("btc", data.BTC.USD, true);
-    update("eth", data.ETH.USD, true);
-    update("avax", data.AVAX.USD, true);
+    updateUI("btc", data.BTC.USD, true);
+    updateUI("eth", data.ETH.USD, true);
+    updateUI("avax", data.AVAX.USD, true);
   }catch(e){}
 }
 
-function update(id, value, isPrice){
+function updateUI(id, value, isPrice){
   const el = document.getElementById(id);
   const elV = document.getElementById(id+"_vnd");
   const v = Number(value);
