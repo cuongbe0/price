@@ -1,131 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crypto Dashboard</title>
+<title>LIVE CRYPTO DASHBOARD</title>
 
 <style>
 body{
-  background:#000814;
-  color:white;
-  font-family:Arial;
   margin:0;
-  text-align:center;
+  background:#0b0e11;
+  color:#fff;
+  font-family:Arial,sans-serif;
 }
 
-h2{
+h1{
+  text-align:center;
   margin:20px 0;
+  font-size:42px;
 }
 
 .row{
   display:flex;
   gap:15px;
   overflow-x:auto;
-  padding:15px;
+  padding:20px;
 }
 
 .card{
-  min-width:180px;
-  border:1px solid #00ffee;
+  min-width:220px;
+  background:#131722;
+  border:1px solid #00ffd0;
   border-radius:16px;
   padding:20px;
-  background:#07111f;
-  flex:0 0 auto;
+  box-sizing:border-box;
 }
 
 .label{
-  font-size:16px;
+  font-size:18px;
+  margin-bottom:15px;
 }
 
 .price{
-  font-size:28px;
+  font-size:42px;
   font-weight:bold;
-  margin-top:15px;
+  margin-bottom:10px;
 }
 
 .vnd{
-  color:#999;
-  margin-top:8px;
+  color:#aaa;
+  font-size:18px;
 }
+
+.green{color:#0ecb81;}
+.red{color:#f6465d;}
 </style>
 </head>
 
 <body>
 
-<h2>🚀 LIVE CRYPTO DASHBOARD</h2>
+<h1>🚀 LIVE CRYPTO DASHBOARD</h1>
 
 <div class="row">
 
-<div class="card">
-  <div class="label">🚀 TURBO</div>
-  <div id="turbo" class="price">...</div>
-  <div id="turbo_vnd" class="vnd"></div>
-</div>
+  <div class="card">
+    <div class="label">🚀 TURBO</div>
+    <div id="turbo" class="price">...</div>
+    <div id="turbo_vnd" class="vnd"></div>
+  </div>
 
-<div class="card">
-  <div class="label">💎 PNIC</div>
-  <div id="pnic" class="price">...</div>
-  <div id="pnic_vnd" class="vnd"></div>
-</div>
+  <div class="card">
+    <div class="label">💎 PNIC</div>
+    <div id="pnic" class="price">...</div>
+    <div id="pnic_vnd" class="vnd"></div>
+  </div>
 
-<div class="card">
-  <div class="label">🏦 Total Staked</div>
-  <div id="staked" class="price">...</div>
-  <div id="staked_vnd" class="vnd"></div>
-</div>
+  <div class="card">
+    <div class="label">🏦 Total Staked</div>
+    <div id="staked" class="price">...</div>
+    <div id="staked_usd" class="vnd"></div>
+  </div>
 
-<div class="card">
-  <div class="label">⏳ Time Left</div>
-  <div id="timeleft" class="price">...</div>
-  <div class="vnd">Remaining</div>
-</div>
+  <div class="card">
+    <div class="label">⏳ Time Left</div>
+    <div id="timeleft" class="price">...</div>
+    <div class="vnd">Remaining</div>
+  </div>
 
-<div class="card">
-  <div class="label">🟠 BTC</div>
-  <div id="btc" class="price">...</div>
-  <div id="btc_vnd" class="vnd"></div>
-</div>
+  <div class="card">
+    <div class="label">🟠 BTC</div>
+    <div id="btc" class="price">...</div>
+    <div id="btc_vnd" class="vnd"></div>
+  </div>
 
-<div class="card">
-  <div class="label">Ξ ETH</div>
-  <div id="eth" class="price">...</div>
-  <div id="eth_vnd" class="vnd"></div>
-</div>
+  <div class="card">
+    <div class="label">Ξ ETH</div>
+    <div id="eth" class="price">...</div>
+    <div id="eth_vnd" class="vnd"></div>
+  </div>
 
-<div class="card">
-  <div class="label">🟢 AVAX</div>
-  <div id="avax" class="price">...</div>
-  <div id="avax_vnd" class="vnd"></div>
-</div>
+  <div class="card">
+    <div class="label">🟢 AVAX</div>
+    <div id="avax" class="price">...</div>
+    <div id="avax_vnd" class="vnd"></div>
+  </div>
 
 </div>
 
 <script>
 
-const API_KEY = "sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv";
+const API_KEY = 'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv';
 
 let RATE = 25000;
-let old = {};
+let oldPrice = {};
 
 async function loadRate(){
   try{
-    const res = await fetch("https://open.er-api.com/v6/latest/USD");
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
     const data = await res.json();
     RATE = data.rates.VND;
   }catch(e){
-    console.log(e);
+    console.log('rate error');
   }
 }
 
 async function loadTokens(){
+
   try{
+
     const res = await fetch(
-      "https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1",
+      'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1',
       {
         headers:{
           apikey: API_KEY,
-          Authorization: "Bearer " + API_KEY
+          Authorization: 'Bearer ' + API_KEY
         }
       }
     );
@@ -136,75 +143,86 @@ async function loadTokens(){
 
     const item = data[0];
 
-    updatePrice("turbo", item.turbo_price_usd);
-    updatePrice("pnic", item.pnic_price_usd);
+    console.log(item);
 
-    updateStaked(item.total_staked || item.lp_price_usd || 0);
-    updateTime(item.time_left || "6d 3m");
+    updatePrice('turbo', item.turbo_price_usd);
+    updatePrice('pnic', item.pnic_price_usd);
+
+    // scrape trực tiếp từ TurboDex
+    try {
+
+      const page = await fetch('https://turbo.miracledex.net');
+      const html = await page.text();
+
+      const stakedMatch = html.match(/Total Staked[\s\S]*?(\d{1,3}(?:,\d{3})*\.\d+)/i);
+
+      if(stakedMatch && stakedMatch[1]){
+        document.getElementById('staked').innerText = stakedMatch[1];
+      }
+
+      const timeMatch = html.match(/Time Left[\s\S]*?(\d+d\s*\d+h\s*\d+m)/i);
+
+      if(timeMatch && timeMatch[1]){
+        document.getElementById('timeleft').innerText = timeMatch[1];
+      }
+
+    } catch(scrapeErr){
+      console.log('scrape error', scrapeErr);
+    }
 
   }catch(e){
-    console.log("Token lỗi", e);
+    console.log('token error', e);
   }
 }
 
 async function loadMarket(){
+
   try{
+
     const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,avalanche-2&vs_currencies=usd"
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,avalanche-2&vs_currencies=usd'
     );
 
     const data = await res.json();
 
-    updatePrice("btc", data.bitcoin.usd);
-    updatePrice("eth", data.ethereum.usd);
-    updatePrice("avax", data['avalanche-2'].usd);
+    updatePrice('btc', data.bitcoin.usd);
+    updatePrice('eth', data.ethereum.usd);
+    updatePrice('avax', data['avalanche-2'].usd);
 
   }catch(e){
-    console.log("Market lỗi", e);
+    console.log('market error');
   }
 }
 
 function updatePrice(id, value){
 
   const el = document.getElementById(id);
-  const elVnd = document.getElementById(id + "_vnd");
+  const elVnd = document.getElementById(id + '_vnd');
 
   if(!el || !elVnd) return;
 
-  const v = parseFloat(value);
+  const v = Number(value);
 
-  if(isNaN(v)){
-    el.innerText = 'N/A';
-    elVnd.innerText = '';
-    return;
-  }
+  if(isNaN(v)) return;
 
   el.innerText = '$' + v.toFixed(6);
   elVnd.innerText = (v * RATE).toLocaleString('vi-VN') + ' đ';
 
-  if(old[id]){
-    if(v > old[id]) el.style.color = '#0ecb81';
-    if(v < old[id]) el.style.color = '#f6465d';
+  if(oldPrice[id]){
+
+    el.classList.remove('green');
+    el.classList.remove('red');
+
+    if(v > oldPrice[id]){
+      el.classList.add('green');
+    }
+
+    if(v < oldPrice[id]){
+      el.classList.add('red');
+    }
   }
 
-  old[id] = v;
-}
-
-function updateStaked(value){
-
-  const el = document.getElementById('staked');
-  const elVnd = document.getElementById('staked_vnd');
-
-  const v = Number(value);
-
-  el.innerText = v.toLocaleString('en-US');
-  elVnd.innerText = '~$' + (v * 0.0347).toLocaleString('en-US', {
-    maximumFractionDigits:0
-  });
-}
-
-function updateTime(value){
-  document.getElementById('timeleft').innerText = value;
+  oldPrice[id] = v;
 }
 
 loadRate();
