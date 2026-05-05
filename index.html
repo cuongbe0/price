@@ -6,6 +6,7 @@
 <title>LIVE CRYPTO DASHBOARD</title>
 
 <style>
+
 *{
   margin:0;
   padding:0;
@@ -14,31 +15,31 @@
 
 body{
   background:#050816;
-  color:white;
+  color:#fff;
   font-family:Arial,sans-serif;
-  overflow-y:auto;
-}
-
-.container{
-  max-width:520px;
-  margin:auto;
   padding:10px;
 }
 
 h1{
   text-align:center;
-  font-size:28px;
-  margin:14px 0 18px;
-  font-weight:700;
+  margin-bottom:12px;
+  font-size:24px;
+}
+
+.dashboard{
+  max-width:520px;
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 .card{
-  background:#10162b;
-  border:1px solid #00ffe1;
+  background:#0d132b;
+  border:1px solid #00fff2;
   border-radius:18px;
-  padding:16px;
-  margin-bottom:12px;
-  min-height:110px;
+  padding:14px;
+  min-height:105px;
 
   display:flex;
   flex-direction:column;
@@ -50,7 +51,7 @@ h1{
   display:flex;
   align-items:center;
   gap:10px;
-  margin-bottom:12px;
+  margin-bottom:8px;
 }
 
 .logo{
@@ -61,152 +62,217 @@ h1{
   background:#fff;
 }
 
-.label{
-  font-size:20px;
+.name{
+  font-size:18px;
   font-weight:bold;
 }
 
 .price{
-  font-size:34px;
+  font-size:28px;
   font-weight:bold;
-  margin-bottom:8px;
+  margin-bottom:4px;
 }
 
 .vnd{
-  font-size:20px;
-  color:#cfcfcf;
+  font-size:16px;
+  color:#bfc7d5;
 }
 
 .green{
-  color:#0ecb81;
+  color:#00ff99;
 }
 
 .red{
-  color:#f6465d;
+  color:#ff5577;
 }
 
-@media(max-width:480px){
-
-  h1{
-    font-size:24px;
-  }
-
-  .card{
-    min-height:95px;
-    padding:14px;
-  }
-
-  .price{
-    font-size:30px;
-  }
-
-  .vnd{
-    font-size:18px;
-  }
-
-  .label{
-    font-size:18px;
-  }
-}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
 <h1>🚀 LIVE CRYPTO DASHBOARD</h1>
 
-<!-- TURBO -->
-<div class="card">
-  <div class="top">
-    <img class="logo"
-    src="https://turbo.miracledex.net/turbo-logo.png">
-    <div class="label">TURBO</div>
+<div class="dashboard">
+
+  <!-- MIRX -->
+  <div class="card">
+    <div class="top">
+      <img class="logo"
+      src="https://mirx.miracledex.net/favicon.ico">
+
+      <div class="name">MIRX</div>
+    </div>
+
+    <div id="mirx-price" class="price">...</div>
+    <div id="mirx-vnd" class="vnd"></div>
   </div>
 
-  <div id="turbo" class="price">...</div>
-  <div id="turbo_vnd" class="vnd"></div>
-</div>
+  <!-- TURBO -->
+  <div class="card">
+    <div class="top">
+      <img class="logo"
+      src="https://turbo.miracledex.net/turbo-logo.png">
 
-<!-- PNIC -->
-<div class="card">
-  <div class="top">
-    <img class="logo"
-    src="https://coin-images.coingecko.com/coins/images/37667/small/IMG_20240506_181047_087.jpg?1715181260">
-    <div class="label">PNIC</div>
+      <div class="name">TURBO</div>
+    </div>
+
+    <div id="turbo-price" class="price">...</div>
+    <div id="turbo-vnd" class="vnd"></div>
   </div>
 
-  <div id="pnic" class="price">...</div>
-  <div id="pnic_vnd" class="vnd"></div>
-</div>
+  <!-- PNIC -->
+  <div class="card">
+    <div class="top">
+      <img class="logo"
+      src="https://coin-images.coingecko.com/coins/images/37667/small/IMG_20240506_181047_087.jpg?1715181260">
 
-<!-- BTC -->
-<div class="card">
-  <div class="top">
-    <img class="logo"
-    src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=040">
-    <div class="label">BTC</div>
+      <div class="name">PNIC</div>
+    </div>
+
+    <div id="pnic-price" class="price">...</div>
+    <div id="pnic-vnd" class="vnd"></div>
   </div>
 
-  <div id="btc" class="price">...</div>
-  <div id="btc_vnd" class="vnd"></div>
-</div>
+  <!-- BTC -->
+  <div class="card">
+    <div class="top">
+      <img class="logo"
+      src="https://cryptologos.cc/logos/bitcoin-btc-logo.png">
 
-<!-- ETH -->
-<div class="card">
-  <div class="top">
-    <img class="logo"
-    src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040">
-    <div class="label">ETH</div>
+      <div class="name">BTC</div>
+    </div>
+
+    <div id="btc-price" class="price">...</div>
+    <div id="btc-vnd" class="vnd"></div>
   </div>
 
-  <div id="eth" class="price">...</div>
-  <div id="eth_vnd" class="vnd"></div>
-</div>
+  <!-- ETH -->
+  <div class="card">
+    <div class="top">
+      <img class="logo"
+      src="https://cryptologos.cc/logos/ethereum-eth-logo.png">
 
-<!-- AVAX -->
-<div class="card">
-  <div class="top">
-    <img class="logo"
-    src="https://cryptologos.cc/logos/avalanche-avax-logo.png?v=040">
-    <div class="label">AVAX</div>
+      <div class="name">ETH</div>
+    </div>
+
+    <div id="eth-price" class="price">...</div>
+    <div id="eth-vnd" class="vnd"></div>
   </div>
 
-  <div id="avax" class="price">...</div>
-  <div id="avax_vnd" class="vnd"></div>
-</div>
+  <!-- AVAX -->
+  <div class="card">
+    <div class="top">
+      <img class="logo"
+      src="https://cryptologos.cc/logos/avalanche-avax-logo.png">
+
+      <div class="name">AVAX</div>
+    </div>
+
+    <div id="avax-price" class="price">...</div>
+    <div id="avax-vnd" class="vnd"></div>
+  </div>
 
 </div>
 
 <script>
 
-let RATE = 26000;
-let oldPrice = {};
+const USDVND = 26000;
+let oldPrices = {};
 
-async function loadRate(){
+function updatePrice(id, value){
+
+  value = Number(value);
+
+  if(isNaN(value)) return;
+
+  const priceEl =
+    document.getElementById(id + '-price');
+
+  const vndEl =
+    document.getElementById(id + '-vnd');
+
+  priceEl.innerHTML =
+    '$' + value.toFixed(6);
+
+  vndEl.innerHTML =
+    (value * USDVND).toLocaleString('vi-VN')
+    + ' đ';
+
+  priceEl.classList.remove('green');
+  priceEl.classList.remove('red');
+
+  if(oldPrices[id]){
+
+    if(value > oldPrices[id]){
+      priceEl.classList.add('green');
+    }
+
+    if(value < oldPrices[id]){
+      priceEl.classList.add('red');
+    }
+  }
+
+  oldPrices[id] = value;
+}
+
+// ======================
+// BINANCE FAST API
+// ======================
+
+async function loadBinance(){
 
   try{
 
     const res = await fetch(
-      'https://open.er-api.com/v6/latest/USD'
+      'https://api.binance.com/api/v3/ticker/price'
     );
 
     const data = await res.json();
 
-    RATE = data.rates.VND;
+    const btc =
+      data.find(x=>x.symbol==='BTCUSDT');
+
+    const eth =
+      data.find(x=>x.symbol==='ETHUSDT');
+
+    const avax =
+      data.find(x=>x.symbol==='AVAXUSDT');
+
+    const turbo =
+      data.find(x=>x.symbol==='TURBOUSDT');
+
+    if(btc){
+      updatePrice('btc', btc.price);
+    }
+
+    if(eth){
+      updatePrice('eth', eth.price);
+    }
+
+    if(avax){
+      updatePrice('avax', avax.price);
+    }
+
+    if(turbo){
+      updatePrice('turbo', turbo.price);
+    }
 
   }catch(e){
-    console.log(e);
+    console.log('BINANCE ERROR',e);
   }
 }
+
+// ======================
+// PNIC
+// ======================
 
 async function loadPNIC(){
 
   try{
 
     const res = await fetch(
-      'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=*&order=timestamp.desc&limit=1',
+      'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=pnic_price_usd&order=timestamp.desc&limit=1',
       {
         headers:{
           apikey:'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv'
@@ -222,85 +288,55 @@ async function loadPNIC(){
         'pnic',
         data[0].pnic_price_usd
       );
-
-      updatePrice(
-        'turbo',
-        data[0].turbo_price_usd
-      );
     }
 
   }catch(e){
-    console.log(e);
+    console.log('PNIC ERROR',e);
   }
 }
 
-async function loadMarket(){
+// ======================
+// MIRX
+// ======================
+
+async function loadMIRX(){
 
   try{
 
     const res = await fetch(
-      'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,AVAX&tsyms=USD'
+      'https://jyqtvajmmsvmsfnemuzv.supabase.co/rest/v1/mirx_usd_prices?select=price_usd&order=timestamp.desc&limit=1',
+      {
+        headers:{
+          apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA',
+          Authorization:'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA'
+        }
+      }
     );
 
     const data = await res.json();
 
-    updatePrice('btc', data.BTC.USD);
-    updatePrice('eth', data.ETH.USD);
-    updatePrice('avax', data.AVAX.USD);
+    if(data && data.length){
+
+      updatePrice(
+        'mirx',
+        data[0].price_usd
+      );
+    }
 
   }catch(e){
-    console.log(e);
+    console.log('MIRX ERROR',e);
   }
 }
 
-function updatePrice(id,value){
-
-  const el = document.getElementById(id);
-  const vnd = document.getElementById(id+'_vnd');
-
-  if(!el || !vnd) return;
-
-  value = Number(value);
-
-  if(isNaN(value)) return;
-
-  el.innerText =
-    '$' + value.toLocaleString(
-      'en-US',
-      {
-        minimumFractionDigits:6,
-        maximumFractionDigits:6
-      }
-    );
-
-  vnd.innerText =
-    (value * RATE).toLocaleString('vi-VN')
-    + ' đ';
-
-  if(oldPrice[id]){
-
-    el.classList.remove('green');
-    el.classList.remove('red');
-
-    if(value > oldPrice[id]){
-      el.classList.add('green');
-    }
-
-    if(value < oldPrice[id]){
-      el.classList.add('red');
-    }
-  }
-
-  oldPrice[id] = value;
-}
-
-loadRate();
+// LOAD
+loadBinance();
 loadPNIC();
-loadMarket();
+loadMIRX();
 
-setInterval(loadRate,60000);
+// REFRESH
+setInterval(loadBinance,3000);
 setInterval(loadPNIC,4000);
-setInterval(loadMarket,5000);
+setInterval(loadMIRX,4000);
 
 </script>
 
