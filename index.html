@@ -2,346 +2,277 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050816">
 <title>LIVE CRYPTO DASHBOARD</title>
-
 <style>
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  background:#050816;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  padding:10px;
-}
-
-h1{
-  text-align:center;
-  margin-bottom:12px;
-  font-size:24px;
-}
-
-.dashboard{
-  max-width:520px;
-  margin:auto;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.card{
-  background:#0d132b;
-  border:1px solid #00fff2;
-  border-radius:18px;
-  padding:14px;
-  min-height:105px;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-}
-
-.top{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:8px;
-}
-
-.logo{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  object-fit:cover;
-  background:#fff;
-}
-
-.name{
-  font-size:18px;
-  font-weight:bold;
-}
-
-.price{
-  font-size:28px;
-  font-weight:bold;
-  margin-bottom:4px;
-}
-
-.vnd{
-  font-size:16px;
-  color:#bfc7d5;
-}
-
-.green{
-  color:#00ff99;
-}
-
-.red{
-  color:#ff5577;
-}
-
+:root{color-scheme:dark;--bg:#050816;--card:#0d132b;--line:#00fff2;--muted:#bfc7d5;--green:#00ff99;--red:#ff5577}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:#fff;font-family:Arial,sans-serif;padding:14px}
+header{max-width:900px;margin:0 auto 18px;text-align:center}
+h1{font-size:clamp(21px,4vw,30px);margin:8px 0}
+.subtitle{color:var(--muted);font-size:13px}
+.status{margin:12px auto 0;color:var(--muted);font-size:12px;min-height:16px}
+.dashboard{max-width:900px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:12px}
+.card{background:var(--card);border:1px solid #174c61;border-radius:18px;padding:17px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 24px #0002}
+.top{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:13px}
+.logo{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#fff;padding:2px}
+.logo-fallback{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#182644;border:1px solid #385477;color:#00fff2;font-weight:bold}
+.name{font-size:19px;font-weight:700}
+.price{font-size:clamp(24px,5vw,30px);font-weight:700;overflow-wrap:anywhere;text-align:center;margin-bottom:6px}
+.vnd{font-size:15px;color:var(--muted);text-align:center;overflow-wrap:anywhere}
+.meta{font-size:11px;color:#8392ad;text-align:center;margin-top:8px;min-height:13px}
+.green{color:var(--green)}.red{color:var(--red)}
+footer{max-width:900px;margin:18px auto 0;text-align:center;color:#8392ad;font-size:12px;line-height:1.6}
+button{background:#102b42;color:#fff;border:1px solid #176078;border-radius:10px;padding:9px 14px;cursor:pointer;margin-top:10px}
+button:hover{background:#17405b}
 </style>
 </head>
-
 <body>
+<header>
+  <h1>🚀 LIVE CRYPTO DASHBOARD</h1>
+  <div class="subtitle">Giá tham khảo theo USD và quy đổi sang VNĐ</div>
+  <div id="overall-status" class="status">Đang kết nối nguồn giá…</div>
+  <button id="refresh-button" type="button">↻ Cập nhật giá ngay</button>
+</header>
 
-<h1>🚀 LIVE CRYPTO DASHBOARD</h1>
+<main class="dashboard">
+  <section class="card">
+    <div class="top"><img class="logo" alt="MIRX" src="https://miracledex.net/favicon.ico" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">M</span><div class="name">MIRX</div></div>
+    <div id="mirx-price" class="price">Đang tải…</div><div id="mirx-vnd" class="vnd">Đang lấy giá</div><div id="mirx-meta" class="meta"></div>
+  </section>
+  <section class="card">
+    <div class="top"><img class="logo" alt="TURBO" src="https://turbo.miracledex.net/turbo-logo.png" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">T</span><div class="name">TURBO</div></div>
+    <div id="turbo-price" class="price">Đang tải…</div><div id="turbo-vnd" class="vnd">Đang lấy giá</div><div id="turbo-meta" class="meta"></div>
+  </section>
+  <section class="card">
+    <div class="top"><img class="logo" alt="PNIC" src="https://coin-images.coingecko.com/coins/images/37667/small/IMG_20240506_181047_087.jpg?1715181260" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">P</span><div class="name">PNIC</div></div>
+    <div id="pnic-price" class="price">Đang tải…</div><div id="pnic-vnd" class="vnd">Đang lấy giá</div><div id="pnic-meta" class="meta"></div>
+  </section>
+  <section class="card">
+    <div class="top"><img class="logo" alt="BOSS" src="https://miracledex.net/favicon.ico" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">B</span><div class="name">BOSS</div></div>
+    <div id="boss-price" class="price">Đang tải…</div><div id="boss-vnd" class="vnd">Đang tìm nguồn giá</div><div id="boss-meta" class="meta"></div>
+  </section>
+  <section class="card">
+    <div class="top"><img class="logo" alt="BTC" src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">₿</span><div class="name">BTC</div></div>
+    <div id="btc-price" class="price">Đang tải…</div><div id="btc-vnd" class="vnd">Đang lấy giá</div><div id="btc-meta" class="meta"></div>
+  </section>
+  <section class="card">
+    <div class="top"><img class="logo" alt="ETH" src="https://cryptologos.cc/logos/ethereum-eth-logo.png" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">Ξ</span><div class="name">ETH</div></div>
+    <div id="eth-price" class="price">Đang tải…</div><div id="eth-vnd" class="vnd">Đang lấy giá</div><div id="eth-meta" class="meta"></div>
+  </section>
+  <section class="card">
+    <div class="top"><img class="logo" alt="AVAX" src="https://cryptologos.cc/logos/avalanche-avax-logo.png" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">A</span><div class="name">AVAX</div></div>
+    <div id="avax-price" class="price">Đang tải…</div><div id="avax-vnd" class="vnd">Đang lấy giá</div><div id="avax-meta" class="meta"></div>
+  </section>
+</main>
 
-<div class="dashboard">
-
-  <!-- MIRX -->
-  <div class="card">
-    <div class="top">
-      <img class="logo"
-      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMUc9r-c8ig_IomtgqxYN5uohff5oD765Cww&s">
-
-      <div class="name">MIRX</div>
-    </div>
-
-    <div id="mirx-price" class="price">...</div>
-    <div id="mirx-vnd" class="vnd"></div>
-  </div>
-
-  <!-- TURBO -->
-  <div class="card">
-    <div class="top">
-      <img class="logo"
-      src="https://turbo.miracledex.net/turbo-logo.png">
-
-      <div class="name">TURBO</div>
-    </div>
-
-    <div id="turbo-price" class="price">...</div>
-    <div id="turbo-vnd" class="vnd"></div>
-  </div>
-
-  <!-- PNIC -->
-  <div class="card">
-    <div class="top">
-      <img class="logo"
-      src="https://coin-images.coingecko.com/coins/images/37667/small/IMG_20240506_181047_087.jpg?1715181260">
-
-      <div class="name">PNIC</div>
-    </div>
-
-    <div id="pnic-price" class="price">...</div>
-    <div id="pnic-vnd" class="vnd"></div>
-  </div>
-
-  <!-- BTC -->
-  <div class="card">
-    <div class="top">
-      <img class="logo"
-      src="https://cryptologos.cc/logos/bitcoin-btc-logo.png">
-
-      <div class="name">BTC</div>
-    </div>
-
-    <div id="btc-price" class="price">...</div>
-    <div id="btc-vnd" class="vnd"></div>
-  </div>
-
-  <!-- ETH -->
-  <div class="card">
-    <div class="top">
-      <img class="logo"
-      src="https://cryptologos.cc/logos/ethereum-eth-logo.png">
-
-      <div class="name">ETH</div>
-    </div>
-
-    <div id="eth-price" class="price">...</div>
-    <div id="eth-vnd" class="vnd"></div>
-  </div>
-
-  <!-- AVAX -->
-  <div class="card">
-    <div class="top">
-      <img class="logo"
-      src="https://cryptologos.cc/logos/avalanche-avax-logo.png">
-
-      <div class="name">AVAX</div>
-    </div>
-
-    <div id="avax-price" class="price">...</div>
-    <div id="avax-vnd" class="vnd"></div>
-  </div>
-
-</div>
+<footer>
+  Giá được cập nhật tự động khoảng mỗi 15 giây. Tỷ giá quy đổi mặc định: 1 USD = 26.000 VNĐ.<br>
+  BOSS được lấy từ price_series nếu nguồn Miracle DEX có bản ghi token_id=boss; nếu không có, trang sẽ báo rõ thay vì tự đặt giá.
+</footer>
 
 <script>
+'use strict';
 
 const USDVND = 26000;
+const REFRESH_MS = 15000;
+const previousPrices = Object.create(null);
 
-let oldPrices = {};
+// Public/anon key của dự án Supabase nhìn thấy trong request Miracle DEX.
+// Không bao giờ thay bằng service_role/secret key.
+const MIRACLE_DEX_PUBLIC_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA';
 
-function updatePrice(id, value){
+const PRICE_SERIES_URL =
+  'https://jyqtvajmmsvmsfnemuzv.supabase.co/rest/v1/price_series' +
+  '?select=token_id,price,ts' +
+  '&token_id=in.(mirx,turbo,pnic,boss)' +
+  '&order=ts.desc&limit=500';
 
-  value = Number(value);
-
-  if(isNaN(value)) return;
-
-  const priceEl =
-    document.getElementById(id + '-price');
-
-  const vndEl =
-    document.getElementById(id + '-vnd');
-
-  priceEl.innerHTML =
-    '$' + value.toFixed(6);
-
-  vndEl.innerHTML =
-    (value * USDVND).toLocaleString('vi-VN')
-    + ' đ';
-
-  priceEl.classList.remove('green');
-  priceEl.classList.remove('red');
-
-  if(oldPrices[id]){
-
-    if(value > oldPrices[id]){
-      priceEl.classList.add('green');
-    }
-
-    if(value < oldPrices[id]){
-      priceEl.classList.add('red');
-    }
-  }
-
-  oldPrices[id] = value;
+function setMessage(id, message, isError = false) {
+  const el = document.getElementById(id + '-vnd');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.toggle('red', isError);
 }
 
-// ==========================
-// BINANCE BTC ETH AVAX
-// ==========================
+function setMeta(id, message) {
+  const el = document.getElementById(id + '-meta');
+  if (el) el.textContent = message || '';
+}
 
-async function loadBinance(){
+function formatUSD(value) {
+  if (!Number.isFinite(value)) return '—';
+  let digits;
+  if (value >= 1000) digits = 2;
+  else if (value >= 1) digits = 4;
+  else if (value >= 0.01) digits = 6;
+  else if (value >= 0.0001) digits = 8;
+  else digits = 12;
 
-  try{
+  return '$' + value.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: digits
+  });
+}
 
-    const res = await fetch(
-      'https://api.binance.com/api/v3/ticker/price'
-    );
+function updatePrice(id, rawValue, timestamp = '') {
+  const value = Number(rawValue);
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error('Giá không hợp lệ cho ' + id);
+  }
 
-    const data = await res.json();
+  const priceEl = document.getElementById(id + '-price');
+  const vndEl = document.getElementById(id + '-vnd');
+  if (!priceEl || !vndEl) return;
 
-    const btc =
-      data.find(x=>x.symbol==='BTCUSDT');
+  priceEl.textContent = formatUSD(value);
+  vndEl.textContent = (value * USDVND).toLocaleString('vi-VN', {
+    maximumFractionDigits: 4
+  }) + ' VNĐ';
 
-    const eth =
-      data.find(x=>x.symbol==='ETHUSDT');
+  priceEl.classList.remove('green', 'red');
+  if (previousPrices[id] !== undefined) {
+    if (value > previousPrices[id]) priceEl.classList.add('green');
+    else if (value < previousPrices[id]) priceEl.classList.add('red');
+  }
+  previousPrices[id] = value;
 
-    const avax =
-      data.find(x=>x.symbol==='AVAXUSDT');
-
-    if(btc){
-      updatePrice('btc', btc.price);
-    }
-
-    if(eth){
-      updatePrice('eth', eth.price);
-    }
-
-    if(avax){
-      updatePrice('avax', avax.price);
-    }
-
-  }catch(e){
-    console.log('BINANCE ERROR',e);
+  if (timestamp) {
+    const date = new Date(timestamp);
+    setMeta(id, Number.isNaN(date.getTime())
+      ? ''
+      : 'Cập nhật: ' + date.toLocaleString('vi-VN'));
+  } else {
+    setMeta(id, 'Cập nhật: ' + new Date().toLocaleTimeString('vi-VN'));
   }
 }
 
-// ==========================
-// TURBO + PNIC
-// ==========================
+async function fetchJSON(url, headers = {}) {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+    cache: 'no-store'
+  });
+  const text = await response.text();
 
-async function loadMiracle(){
+  if (!response.ok) {
+    throw new Error('HTTP ' + response.status + ' — ' + text.slice(0, 180));
+  }
 
-  try{
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('Phản hồi không phải JSON hợp lệ');
+  }
+}
 
-    const res = await fetch(
-      'https://mqeejpeekuzzygwabmnh.supabase.co/rest/v1/price_snapshots?select=turbo_price_usd,pnic_price_usd&order=timestamp.desc&limit=1',
-      {
-        headers:{
-          apikey:
-          'sb_publishable__EFtt8r3kAP6zwWT0Ze38w_zktfLWuv'
-        }
+async function loadMiracleDexPrices() {
+  try {
+    const rows = await fetchJSON(PRICE_SERIES_URL, {
+      apikey: MIRACLE_DEX_PUBLIC_KEY,
+      Authorization: 'Bearer ' + MIRACLE_DEX_PUBLIC_KEY
+    });
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      throw new Error('price_series không trả về dữ liệu');
+    }
+
+    // Request sắp xếp timestamp giảm dần: bản ghi đầu tiên của mỗi token
+    // là bản ghi mới nhất trong tập dữ liệu được trả về.
+    const latest = Object.create(null);
+    for (const row of rows) {
+      const id = String(row.token_id || '').toLowerCase();
+      if (!['mirx', 'turbo', 'pnic', 'boss'].includes(id)) continue;
+      if (latest[id] !== undefined) continue;
+
+      const price = Number(row.price);
+      if (row.price !== null && row.price !== undefined &&
+          Number.isFinite(price) && price >= 0) {
+        latest[id] = { price, ts: row.ts };
       }
-    );
-
-    const data = await res.json();
-
-    if(data && data.length){
-
-      updatePrice(
-        'turbo',
-        data[0].turbo_price_usd
-      );
-
-      updatePrice(
-        'pnic',
-        data[0].pnic_price_usd
-      );
     }
 
-  }catch(e){
-    console.log('MIRACLE ERROR',e);
-  }
-}
-
-// ==========================
-// MIRX
-// ==========================
-
-async function loadMIRX(){
-
-  try{
-
-    const res = await fetch(
-      'https://jyqtvajmmsvmsfnemuzv.supabase.co/rest/v1/mirx_usd_prices?select=price_usd&order=timestamp.desc&limit=1',
-      {
-        headers:{
-          apikey:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA',
-
-          Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXR2YWptbXN2bXNmbmVtdXp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMDg5ODQsImV4cCI6MjA3MDY4NDk4NH0.sGHT0zojZrVHA6CyVxbBb0600xIYaVRet6qP2z2GuBA'
-        }
+    for (const id of ['mirx', 'turbo', 'pnic']) {
+      if (latest[id]) {
+        updatePrice(id, latest[id].price, latest[id].ts);
+      } else {
+        setMessage(id, 'Chưa có giá trong price_series', true);
+        setMeta(id, '');
       }
-    );
-
-    const data = await res.json();
-
-    if(data && data.length){
-
-      updatePrice(
-        'mirx',
-        data[0].price_usd
-      );
     }
 
-  }catch(e){
-    console.log('MIRX ERROR',e);
+    if (latest.boss) {
+      updatePrice('boss', latest.boss.price, latest.boss.ts);
+    } else {
+      document.getElementById('boss-price').textContent = 'Chưa có dữ liệu';
+      setMessage('boss', 'Không thấy token_id=boss trong API DEX', true);
+      setMeta('boss', 'Cần xác định nguồn giá BOSS chính xác');
+    }
+
+    document.getElementById('overall-status').textContent =
+      'Miracle DEX: kết nối thành công · ' +
+      new Date().toLocaleTimeString('vi-VN');
+  } catch (error) {
+    console.error('Miracle DEX price_series error:', error);
+    document.getElementById('overall-status').textContent =
+      'Lỗi nguồn Miracle DEX: ' + error.message;
+    for (const id of ['mirx', 'turbo', 'pnic', 'boss']) {
+      if (previousPrices[id] === undefined) {
+        document.getElementById(id + '-price').textContent = 'Lỗi API';
+        setMessage(id, error.message, true);
+      }
+    }
   }
 }
 
-// LOAD
-loadBinance();
-loadMiracle();
-loadMIRX();
+async function loadBinanceSymbol(id, symbol) {
+  try {
+    const data = await fetchJSON(
+      'https://data-api.binance.vision/api/v3/ticker/price?symbol=' +
+      encodeURIComponent(symbol)
+    );
+    updatePrice(id, data.price);
+  } catch (error) {
+    console.error('Binance ' + symbol + ' error:', error);
+    if (previousPrices[id] === undefined) {
+      document.getElementById(id + '-price').textContent = 'Lỗi API';
+      setMessage(id, error.message, true);
+    } else {
+      setMeta(id, 'Không cập nhật được; đang giữ giá gần nhất');
+    }
+  }
+}
 
-// REFRESH
-setInterval(loadBinance,3000);
-setInterval(loadMiracle,4000);
-setInterval(loadMIRX,4000);
+async function loadBinancePrices() {
+  await Promise.allSettled([
+    loadBinanceSymbol('btc', 'BTCUSDT'),
+    loadBinanceSymbol('eth', 'ETHUSDT'),
+    loadBinanceSymbol('avax', 'AVAXUSDT')
+  ]);
+}
 
+let refreshInProgress = false;
+async function refreshAll() {
+  if (refreshInProgress) return;
+  refreshInProgress = true;
+  const button = document.getElementById('refresh-button');
+  button.disabled = true;
+  button.textContent = 'Đang cập nhật…';
+
+  try {
+    await Promise.allSettled([loadMiracleDexPrices(), loadBinancePrices()]);
+  } finally {
+    refreshInProgress = false;
+    button.disabled = false;
+    button.textContent = '↻ Cập nhật giá ngay';
+  }
+}
+
+document.getElementById('refresh-button').addEventListener('click', refreshAll);
+refreshAll();
+setInterval(refreshAll, REFRESH_MS);
 </script>
-
 </body>
 </html>
